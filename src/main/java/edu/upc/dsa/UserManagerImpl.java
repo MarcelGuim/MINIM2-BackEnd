@@ -64,6 +64,20 @@ public class UserManagerImpl implements UserManager {
         return u;
     }
 
+    public User getUserFromUsername(String _username) {
+        logger.info("getUser("+_username+")");
+
+        for (User u: this.users) {
+            if (u.getUser().equals(_username)) {
+                logger.info("getUser("+_username+"): "+u);
+
+                return u;
+            }
+        }
+        logger.warn("not found " + _username);
+        return null;
+    }
+
 
     public List<User> findAll() {
         return this.users;

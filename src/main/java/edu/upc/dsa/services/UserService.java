@@ -72,7 +72,7 @@ public class UserService {
     public Response LoginUser(User user) {
 
         if (user.getUser()==null || user.getPassword()==null)  return Response.status(500).build();
-        if(user.getPassword().equals(um.getUser(user.getId()).getPassword()))
+        if(user.getPassword().equals(um.getUserFromUsername(user.getUser()).getPassword()))
             return Response.status(201).build();
         else
             return Response.status(500).build();

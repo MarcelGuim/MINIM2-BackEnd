@@ -12,6 +12,7 @@ public interface UserManager {
     public User addUser(User u);
     public User getUser(String id);
     public User getUser2(String id) throws UserNotFoundException;
+    public User getUserFromUsername(String _username);
 
     public List<User> findAll();
     public void deleteUser(String id);
