@@ -31,7 +31,7 @@ public class UserManagerImpl implements UserManager {
     public User addUser(User u) {
         logger.info("new User " + u);
 
-        this.users.add (u);
+        this.users.add(u);
         logger.info("new Track added");
         return u;
     }
@@ -68,7 +68,7 @@ public class UserManagerImpl implements UserManager {
         logger.info("getUser("+_username+")");
 
         for (User u: this.users) {
-            if (u.getUser().equals(_username)) {
+            if (u.getName().equals(_username)) {
                 logger.info("getUser("+_username+"): "+u);
 
                 return u;
@@ -103,7 +103,7 @@ public class UserManagerImpl implements UserManager {
         if (t!=null) {
             logger.info(u+" rebut!!!! ");
 
-            t.setUser(u.getUser());
+            t.setName(u.getName());
             t.setPassword(u.getPassword());
 
             logger.info(t+" updated ");

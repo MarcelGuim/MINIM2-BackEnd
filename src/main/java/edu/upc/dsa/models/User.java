@@ -4,7 +4,7 @@ import edu.upc.dsa.util.RandomUtils;
 
 public class User {
     String id;
-    String user;
+    String name;
     String password;
     static int lastId;
 
@@ -18,10 +18,13 @@ public class User {
     public User(String id, String user, String password) {
         this();
         if (id != null) this.setId(id);
-        this.setUser(user);
+        this.setName(user);
         this.setPassword(password);
     }
 
+    public void setRandomId(){
+        this.setId(RandomUtils.getId());
+    }
     public String getId() {
         return this.id;
     }
@@ -30,12 +33,12 @@ public class User {
         this.id=id;
     }
 
-    public String getUser() {
-        return user;
+    public String getName() {
+        return name;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {
@@ -48,7 +51,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [id="+id+", user=" + user + ", password=" + password +"]";
+        return "User [id="+id+", user=" + name + ", password=" + password +"]";
     }
 
 }

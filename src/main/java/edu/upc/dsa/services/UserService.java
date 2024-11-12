@@ -55,7 +55,8 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(User user) {
 
-        if (user.getUser()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
+        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
+        //user.setRandomId();
         this.um.addUser(user);
         return Response.status(201).entity(user).build();
     }
@@ -63,7 +64,7 @@ public class UserService {
     @POST
     @ApiOperation(value = "Login a new User", notes = "hello")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error")
 
     })
@@ -71,9 +72,9 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response LoginUser(User user) {
 
-        if (user.getUser()==null || user.getPassword()==null)  return Response.status(500).build();
-        if(user.getPassword().equals(um.getUserFromUsername(user.getUser()).getPassword()))
-            return Response.status(201).build();
+        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).build();
+        if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
+            return Response.status(201).entity(user).build();
         else
             return Response.status(500).build();
     }
