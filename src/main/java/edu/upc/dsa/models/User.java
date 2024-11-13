@@ -6,6 +6,7 @@ public class User {
     String id;
     String name;
     String password;
+    double money;
     static int lastId;
 
     public User() {
@@ -47,6 +48,12 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public double getMoney() {
+        return money;
+    }
+    public void setMoney(double money) {
+        this.money = money;
     }
 
     @Override

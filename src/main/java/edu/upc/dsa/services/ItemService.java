@@ -1,7 +1,10 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.ItemManager;
 import edu.upc.dsa.ItemManagerImpl;
+import edu.upc.dsa.StoreManager;
+import edu.upc.dsa.StoreManagerImpl;
 import edu.upc.dsa.models.Item;
+import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -17,14 +20,23 @@ import java.util.List;
 @Path("/items")
 public class ItemService {
     private ItemManager im;
-
+    private StoreManager sm;
     public ItemService() {
         this.im = ItemManagerImpl.getInstance();
+        this.sm = StoreManagerImpl.getInstance();
         if (im.size()==0) {
-            this.im.addItem("TrucoRumano");
-            this.im.addItem("TrucoGitano");
-            this.im.addItem("PelaCables2000");
-            this.im.addItem("TrucoMurciano");
+            Item item1 = new Item("TrucoRumano");
+            Item item2 = new Item("TrucoGitano");
+            Item item3 = new Item("PelaCables2000");
+            Item item4 = new Item("TrucoMurciano");
+            this.im.addItem(item1);
+            this.im.addItem(item2);
+            this.im.addItem(item3);
+            this.im.addItem(item4);
+            this.sm.addItem(item1);
+            this.sm.addItem(item2);
+            this.sm.addItem(item3);
+            this.sm.addItem(item4);
         }
     }
     @DELETE
@@ -69,6 +81,23 @@ public class ItemService {
         Item i = this.im.getItem(id);
         if (i == null) return Response.status(404).build();
         else  return Response.status(201).entity(i).build();
+    }
+
+    @POST
+    @ApiOperation(value = "Add a new Item", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= Item.class),
+            @ApiResponse(code = 500, message = "Validation Error")
+
+    })
+    @Path("/")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response LoginUser(Item i) {
+
+        if (i.getName()==null)  return Response.status(500).build();
+        im.addItem(i);
+        sm.addItem(i);
+        return Response.status(201).entity(i).build();
     }
 
 }

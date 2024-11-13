@@ -6,6 +6,7 @@ public class Item {
 
     String id;
     String name;
+    double cost;
     static int lastId;
 
     public Item() {
@@ -19,6 +20,14 @@ public class Item {
         this();
         if (id != null) this.setId(id);
         this.setName(name);
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
     public String getId() {

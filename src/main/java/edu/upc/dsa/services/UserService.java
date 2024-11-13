@@ -1,4 +1,6 @@
 package edu.upc.dsa.services;
+import edu.upc.dsa.StoreManager;
+import edu.upc.dsa.StoreManagerImpl;
 import edu.upc.dsa.UserManager;
 import edu.upc.dsa.UserManagerImpl;
 import edu.upc.dsa.models.User;
@@ -17,17 +19,24 @@ import java.util.List;
 @Path("/users")
 public class UserService {
     private UserManager um;
-
+    private StoreManager sm;
     public UserService() {
         this.um = UserManagerImpl.getInstance();
+        this.sm = StoreManagerImpl.getInstance();
         if (um.size()==0) {
-            this.um.addUser("Blau", "Blau2002");
-            this.um.addUser("Lluc", "Falco12");
-            this.um.addUser("David", "1234");
-            this.um.addUser("Marcel", "1234");
+            User u1 = new User("Blau", "Blau2002");
+            User u2 = new User("Lluc", "Falco12");
+            User u3 = new User("David", "1234");
+            User u4 = new User("Marcel", "1234");
+            this.um.addUser(u1);
+            this.um.addUser(u2);
+            this.um.addUser(u3);
+            this.um.addUser(u4);
+            this.sm.addUser(u1);
+            this.sm.addUser(u2);
+            this.sm.addUser(u3);
+            this.sm.addUser(u4);
         }
-
-
     }
 
     @DELETE
@@ -58,6 +67,7 @@ public class UserService {
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
         //user.setRandomId();
         this.um.addUser(user);
+        this.sm.addUser(user);
         return Response.status(201).entity(user).build();
     }
 

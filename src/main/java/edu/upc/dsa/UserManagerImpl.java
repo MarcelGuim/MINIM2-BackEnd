@@ -32,7 +32,7 @@ public class UserManagerImpl implements UserManager {
         logger.info("new User " + u);
 
         this.users.add(u);
-        logger.info("new Track added");
+        logger.info("new User added");
         return u;
     }
 
