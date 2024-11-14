@@ -33,6 +33,20 @@ public class StoreManagerImpl implements StoreManager {
         if (instance==null) instance = new StoreManagerImpl();
         return instance;
     }
+    public void addAllUsers(List<User> u)
+    {
+        users = u;
+        for(User us: u){
+            itemsOfUsers.computeIfAbsent(us.getName(), k -> new ArrayList<>());
+        }
+    }
+    public void addAllItems(List<Item> i)
+    {
+        items = i;
+        for(Item it : i){
+            usersOfItems.computeIfAbsent(it.getId(), k -> new ArrayList<>());
+        }
+    }
     public void addUser(User user){
         users.add(user);
         itemsOfUsers.put(user.getName(),new ArrayList<>());
@@ -53,13 +67,28 @@ public class StoreManagerImpl implements StoreManager {
         User u = um.getUserFromUsername(nameUser);
         Item i = im.getItem(idItem);
         if(u.getMoney()>=i.getCost()){
-            int k = 12;
             itemsOfUsers.get(u.getName()).add(i);
-            k = 1;
             usersOfItems.get(idItem).add(u);
-            k = 8;
+            u.setMoney(u.getMoney()-i.getCost());
             return itemsOfUsers.get(u.getName());
         }
         return null;
+    };
+    public void updateUser(User user){
+        for(User u:users)
+        {
+            if(u.getName().equals(user.getName()))
+                u=user;
+        }
+    };
+    public void updateItem(Item item){
+        for(Item i: items) {
+            if (i.getId().equals(item.getId()))
+                i = item;
+        }
+    };
+
+    public List<Item> getItemUser(String userName){
+        return itemsOfUsers.get(userName);
     };
 }

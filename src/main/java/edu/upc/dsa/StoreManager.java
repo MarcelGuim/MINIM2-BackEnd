@@ -9,7 +9,12 @@ public interface StoreManager {
     public List<Item> listAllItems();
     public List<User> listAllUsers();
     public void addUser(User user);
+    public void updateUser(User user);
+    public void updateItem(Item item);
     public void addItem(Item item);
     public List<Item> BuyItemUser(String idItem, String nameUser);
+    public List<Item> getItemUser(String userName);
+    public void addAllUsers(List<User> u);
+    public void addAllItems(List<Item> i);
 
 }

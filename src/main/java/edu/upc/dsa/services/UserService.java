@@ -1,8 +1,6 @@
 package edu.upc.dsa.services;
-import edu.upc.dsa.StoreManager;
-import edu.upc.dsa.StoreManagerImpl;
-import edu.upc.dsa.UserManager;
-import edu.upc.dsa.UserManagerImpl;
+import edu.upc.dsa.*;
+import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,12 +16,23 @@ import java.util.List;
 @Api(value = "/users", description = "Endpoint to Users Service")
 @Path("/users")
 public class UserService {
-    private UserManager um;
+    private ItemManager im;
     private StoreManager sm;
+    private UserManager um;
     public UserService() {
-        this.um = UserManagerImpl.getInstance();
+        this.im = ItemManagerImpl.getInstance();
         this.sm = StoreManagerImpl.getInstance();
-        if (um.size()==0) {
+        this.um = UserManagerImpl.getInstance();
+        if (im.size() == 0) {
+            Item item1 = new Item("TrucoRumano");
+            Item item2 = new Item("TrucoGitano");
+            Item item3 = new Item("PelaCables2000");
+            Item item4 = new Item("TrucoMurciano");
+            this.im.addItem(item1);
+            this.im.addItem(item2);
+            this.im.addItem(item3);
+            this.im.addItem(item4);
+            this.sm.addAllItems(this.im.findAll());
             User u1 = new User("Blau", "Blau2002");
             User u2 = new User("Lluc", "Falco12");
             User u3 = new User("David", "1234");
@@ -32,10 +41,7 @@ public class UserService {
             this.um.addUser(u2);
             this.um.addUser(u3);
             this.um.addUser(u4);
-            this.sm.addUser(u1);
-            this.sm.addUser(u2);
-            this.sm.addUser(u3);
-            this.sm.addUser(u4);
+            this.sm.addAllUsers(this.um.findAll());
         }
     }
 
@@ -97,11 +103,21 @@ public class UserService {
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsers() {
-
         List<User> users = this.um.findAll();
-
         GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
         return Response.status(201).entity(entity).build()  ;
+    }
 
+    @PUT
+    @ApiOperation(value = "Modifica user", notes = "asdasd")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 404, message = "Item not found")
+    })
+    @Path("/")
+    public Response updateTrack(User user) {
+        User u = this.um.updateUser(user);
+        if (u == null) return Response.status(404).build();
+        return Response.status(201).build();
     }
 }
