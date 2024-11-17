@@ -24,10 +24,10 @@ public class UserService {
         this.sm = StoreManagerImpl.getInstance();
         this.um = UserManagerImpl.getInstance();
         if (im.size() == 0) {
-            Item item1 = new Item("TrucoRumano");
-            Item item2 = new Item("TrucoGitano");
+            Item item1 = new Item("Truco1");
+            Item item2 = new Item("Truco2");
             Item item3 = new Item("PelaCables2000");
-            Item item4 = new Item("TrucoMurciano");
+            Item item4 = new Item("Truco3");
             this.im.addItem(item1);
             this.im.addItem(item2);
             this.im.addItem(item3);
