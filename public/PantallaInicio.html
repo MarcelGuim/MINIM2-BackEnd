@@ -68,7 +68,7 @@
                     if (response.ok) {
                         const user = await response.json();
                         console.log("Inicio de sesión exitoso:", user);
-                        // Aquí puedes redirigir al usuario o mostrar una página de bienvenida
+                        window.location.href = 'Menu.html';
                     } else {
                         document.getElementById('error-message').textContent = "Usuario o contraseña incorrectos.";
                     }
@@ -140,7 +140,6 @@
 
         <button type="submit" class="btn btn-custom">Registrarse</button>
     </form>
-
 </section>
 
 <!-- Bootstrap JS y Popper desde CDN -->
