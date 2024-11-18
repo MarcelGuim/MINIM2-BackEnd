@@ -12,8 +12,8 @@ import java.util.List;
 
 public class StoreManagerImpl implements StoreManager {
     private static StoreManager instance;
-    protected HashMap<String,List<Item>> itemsOfUsers; //Key=user name //POT GENERAR PROBLEMES!!!
-    protected HashMap<String,List<User>> usersOfItems; //Key=item id   //POT GENERAR PROBLEMES!!!
+    protected HashMap<String,List<Item>> itemsOfUsers; //Key=user name
+    protected HashMap<String,List<User>> usersOfItems; //Key=item id
     protected List<User> users;
     protected List<Item> items;
     final static Logger logger = Logger.getLogger(StoreManagerImpl.class);
@@ -62,8 +62,43 @@ public class StoreManagerImpl implements StoreManager {
         }
         return null;
     };
+
+    @Override
     public void clear() {
-        this.itemsOfUsers.clear();
         this.usersOfItems.clear();
+        this.itemsOfUsers.clear();
+        this.items.clear();
+        this.users.clear();
     }
+    public void addAllItems(List<Item> i)
+    {
+        items = i;
+        for(Item it : i){
+            usersOfItems.computeIfAbsent(it.getId(), k -> new ArrayList<>());
+        }
+    }
+    public void addAllUsers(List<User> u)
+    {
+        users = u;
+        for(User us: u){
+            itemsOfUsers.computeIfAbsent(us.getName(), k -> new ArrayList<>());
+        }
+    }
+    public void updateUser(User user){
+        for(User u:users)
+        {
+            if(u.getName().equals(user.getName()))
+                u=user;
+        }
+    };
+    public void updateItem(Item item){
+        for(Item i: items) {
+            if (i.getId().equals(item.getId()))
+                i = item;
+        }
+    };
+
+    public List<Item> getItemUser(String userName){
+        return itemsOfUsers.get(userName);
+    };
 }

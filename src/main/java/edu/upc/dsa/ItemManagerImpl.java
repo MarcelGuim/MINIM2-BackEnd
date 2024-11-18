@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 public class ItemManagerImpl implements ItemManager {
     private static ItemManager instance;
     protected List<Item> items;
-    final static Logger logger = Logger.getLogger(Item.class);
+    final static Logger logger = Logger.getLogger(ItemManagerImpl.class);
 
     private ItemManagerImpl() {
         this.items = new LinkedList<>();
@@ -29,10 +29,10 @@ public class ItemManagerImpl implements ItemManager {
     }
 
     public Item addItem(Item i) {
-        logger.info("new User " + i);
+        logger.info("new Item " + i);
 
         this.items.add (i);
-        logger.info("new Track added");
+        logger.info("new Item added");
         return i;
     }
 
@@ -90,6 +90,7 @@ public class ItemManagerImpl implements ItemManager {
             logger.info(i+" rebut!!!! ");
 
             t.setName(i.getName());
+            t.setCost(i.getCost());
             logger.info(t+" updated ");
         }
         else {
