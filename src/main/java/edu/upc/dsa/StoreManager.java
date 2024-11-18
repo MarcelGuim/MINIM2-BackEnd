@@ -11,5 +11,6 @@ public interface StoreManager {
     public void addUser(User user);
     public void addItem(Item item);
     public List<Item> BuyItemUser(String idItem, String nameUser);
+    public void clear();
 
 }

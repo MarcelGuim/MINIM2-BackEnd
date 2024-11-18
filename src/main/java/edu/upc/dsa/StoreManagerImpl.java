@@ -12,8 +12,8 @@ import java.util.List;
 
 public class StoreManagerImpl implements StoreManager {
     private static StoreManager instance;
-    protected HashMap<String,List<Item>> itemsOfUsers; //Key=user name
-    protected HashMap<String,List<User>> usersOfItems; //Key=item id
+    protected HashMap<String,List<Item>> itemsOfUsers; //Key=user name //POT GENERAR PROBLEMES!!!
+    protected HashMap<String,List<User>> usersOfItems; //Key=item id   //POT GENERAR PROBLEMES!!!
     protected List<User> users;
     protected List<Item> items;
     final static Logger logger = Logger.getLogger(StoreManagerImpl.class);
@@ -62,4 +62,8 @@ public class StoreManagerImpl implements StoreManager {
         }
         return null;
     };
+    public void clear() {
+        this.itemsOfUsers.clear();
+        this.usersOfItems.clear();
+    }
 }
