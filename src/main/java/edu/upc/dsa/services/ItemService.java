@@ -25,18 +25,26 @@ public class ItemService {
         this.um = UserManagerImpl.getInstance();
         if (im.size()==0) {
             Item item1 = new Item("Truco1");
+            item1.setCost(10.0);
             Item item2 = new Item("Truco2");
+            item2.setCost(12.0);
             Item item3 = new Item("PelaCables2000");
+            item3.setCost(75.0);
             Item item4 = new Item("Truco3");
+            item4.setCost(14.0);
             this.im.addItem(item1);
             this.im.addItem(item2);
             this.im.addItem(item3);
             this.im.addItem(item4);
             this.sm.addAllItems(this.im.findAll());
             User u1 = new User("Blau", "Blau2002");
+            u1.setMoney(100.0);
             User u2 = new User("Lluc", "Falco12");
+            u2.setMoney(100.0);
             User u3 = new User("David", "1234");
+            u3.setMoney(100.0);
             User u4 = new User("Marcel", "1234");
+            u4.setMoney(100.0);
             this.um.addUser(u1);
             this.um.addUser(u2);
             this.um.addUser(u3);

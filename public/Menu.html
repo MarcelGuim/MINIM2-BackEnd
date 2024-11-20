@@ -29,27 +29,16 @@
             align-items: center;
             margin-top: 50px;
         }
-        .texto-posicionado {
-            position: fixed; //Permite posicionar el elemento en coordenadas específicas
-            top: 1000px; //Distancia desde la parte superior
-            right: 1500px;
-            font-size: 18px; // Tamaño del texto
-            color: #333; //Color del texto
-        }
     </style>
 </head>
 <body>
 <header class="bg-dark text-white text-center py-3">
     <h1>Menú Principal</h1>
 </header>
-<p class="texto-posicionado">
-    <a onclick="window.location.href='PantallaInicio.html';" target="_blank">Log-in</a>
-</p>
 <section class="container container-buttons">
     <!-- Botones -->
     <button class="btn btn-custom">Empezar partida</button>
     <button class="btn btn-custom">Ver objetos</button>
-    <button class="btn btn-custom">Seleccionar personaje</button>
     <button class="btn btn-custom" onclick="window.location.href='Tienda.html';">Tienda</button>
     <button class="btn btn-custom">Ajustes</button>
     <button class="btn btn-custom">Eliminar cuenta</button>

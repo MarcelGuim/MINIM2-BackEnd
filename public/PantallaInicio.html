@@ -23,6 +23,9 @@
         .error-message {
             color: red;
         }
+        .success-message {
+        color: green;
+        }
     </style>
 </head>
 <body>
@@ -40,13 +43,12 @@
             event.preventDefault(); // Evitar envío predeterminado del formulario
             const nombre = document.getElementById('nombre').value;
             const contraseña = document.getElementById('contraseña').value;
-            const contraseña2 = document.getElementById('contraseña2').value;
 
             // Limpiar mensajes de error
             const errorMessage = document.getElementById('error-message');
             errorMessage.textContent = '';
 
-            if (!nombre || !contraseña || !contraseña2) {
+            if (!nombre || !contraseña) {
                 errorMessage.textContent = 'Por favor, completa todos los campos.';
                 return false;
             }
@@ -84,34 +86,30 @@
             event.preventDefault(); // Evitar envío predeterminado del formulario
             const nombre = document.getElementById('nombreRegistro').value;
             const contraseña = document.getElementById('contraseñaRegistro').value;
-            const contraseña2 = document.getElementById('contraseña2').value;
 
             if (nombre && contraseña) {
-                if(contraseña===contraseña2){
-                    try {
-                        const response = await fetch(`${urlBase}/register`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ name: nombre, password: contraseña })
-                        });
+                try {
+                    const response = await fetch(`${urlBase}/register`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: nombre, password: contraseña })
+                    });
 
-                        if (response.ok) {
-                            console.log("Registro exitoso");
-                            // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
-                        } else {
-                            document.getElementById('error-message').textContent = "Error en el registro. Verifica los datos.";
-                        }
-                    } catch (error) {
-                        console.error("Error al registrarse:", error);
+                    if (response.ok) {
+                        console.log("Registro exitoso");
+                        // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
+                    } else {
+                        document.getElementById('error-message').textContent = "Error en el registro. Verifica los datos.";
                     }
-                }
-                else{
-                    document.getElementById('error-message').textContent = 'Las contraseñas al registrarse no coinciden';
+                } catch (error) {
+                    console.error("Error al registrarse:", error);
                 }
             } else {
                 document.getElementById('error-message').textContent = 'Por favor, completa todos los campos.';
             }
         }
+
+
     </script>
 
     <!-- Formulario para Iniciar Sesión -->
