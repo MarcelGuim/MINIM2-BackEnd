@@ -40,12 +40,13 @@
             event.preventDefault(); // Evitar envío predeterminado del formulario
             const nombre = document.getElementById('nombre').value;
             const contraseña = document.getElementById('contraseña').value;
+            const contraseña2 = document.getElementById('contraseña2').value;
 
             // Limpiar mensajes de error
             const errorMessage = document.getElementById('error-message');
             errorMessage.textContent = '';
 
-            if (!nombre || !contraseña) {
+            if (!nombre || !contraseña || !contraseña2) {
                 errorMessage.textContent = 'Por favor, completa todos los campos.';
                 return false;
             }
@@ -83,23 +84,29 @@
             event.preventDefault(); // Evitar envío predeterminado del formulario
             const nombre = document.getElementById('nombreRegistro').value;
             const contraseña = document.getElementById('contraseñaRegistro').value;
+            const contraseña2 = document.getElementById('contraseña2').value;
 
             if (nombre && contraseña) {
-                try {
-                    const response = await fetch(`${urlBase}/register`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: nombre, password: contraseña })
-                    });
+                if(contraseña===contraseña2){
+                    try {
+                        const response = await fetch(`${urlBase}/register`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ name: nombre, password: contraseña })
+                        });
 
-                    if (response.ok) {
-                        console.log("Registro exitoso");
-                        // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
-                    } else {
-                        document.getElementById('error-message').textContent = "Error en el registro. Verifica los datos.";
+                        if (response.ok) {
+                            console.log("Registro exitoso");
+                            // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
+                        } else {
+                            document.getElementById('error-message').textContent = "Error en el registro. Verifica los datos.";
+                        }
+                    } catch (error) {
+                        console.error("Error al registrarse:", error);
                     }
-                } catch (error) {
-                    console.error("Error al registrarse:", error);
+                }
+                else{
+                    document.getElementById('error-message').textContent = 'Las contraseñas al registrarse no coinciden';
                 }
             } else {
                 document.getElementById('error-message').textContent = 'Por favor, completa todos los campos.';
@@ -137,7 +144,10 @@
             <label for="contraseñaRegistro" class="form-label">Contraseña:</label>
             <input type="password" class="form-control" id="contraseñaRegistro" name="contraseñaRegistro" placeholder="Escribe tu contraseña" required>
         </div>
-
+        <div class="mb-3">
+            <label for="contraseña2" class="form-label">Repite la contraseña:</label>
+            <input type="password" class="form-control" id="contraseña2" name="contraseña2" placeholder="Repite tu contraseña" required>
+        </div>
         <button type="submit" class="btn btn-custom">Registrarse</button>
     </form>
 </section>
