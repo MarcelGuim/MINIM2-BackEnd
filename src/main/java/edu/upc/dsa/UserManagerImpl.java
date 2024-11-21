@@ -73,7 +73,7 @@ public class UserManagerImpl implements UserManager {
         return u;
     }
 
-    public User getUserFromUsername(String _username) {
+    public User getUserFromUsername(String _username) throws UserNotFoundException{
         logger.info("getUser("+_username+")");
 
         for (User u: this.users.values()) {
@@ -84,7 +84,7 @@ public class UserManagerImpl implements UserManager {
             }
         }
         logger.warn("not found " + _username);
-        return null;
+        throw new UserNotFoundException();
     }
 
 

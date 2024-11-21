@@ -1,5 +1,6 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
+import edu.upc.dsa.exceptions.UserNotFoundException;
 import edu.upc.dsa.exceptions.UserRepeatedException;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
@@ -83,7 +84,7 @@ public class UserService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Validation Error")
+            @ApiResponse(code = 501, message = "User Exists")
 
     })
     @Path("/register")
@@ -98,7 +99,7 @@ public class UserService {
             return Response.status(201).entity(user).build();
         }
         catch(UserRepeatedException ex){
-            return Response.status(500).entity(user).build();
+            return Response.status(501).entity(user).build();
         }
     }
 
@@ -106,18 +107,25 @@ public class UserService {
     @ApiOperation(value = "Login a new User", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
-            @ApiResponse(code = 500, message = "Validation Error")
-
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "Wrong Password"),
+            @ApiResponse(code = 502, message = "User Not Found")
     })
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response LoginUser(User user) {
 
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).build();
-        if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
-            return Response.status(201).entity(user).build();
-        else
-            return Response.status(500).build();
+        try{
+            if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
+                return Response.status(201).entity(user).build();
+            else
+                return Response.status(501).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(502).build();
+        }
     }
 
     @GET
@@ -144,5 +152,27 @@ public class UserService {
         User u = this.um.updateUser(user);
         if (u == null) return Response.status(404).build();
         return Response.status(201).build();
+    }
+
+    @POST
+    @ApiOperation(value = "Get stats of user", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "Validation Error")
+
+    })
+    @Path("/stats/{userName}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response GetStatsUser( @PathParam("userName") String userName) {
+        if (userName == null)  return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(userName);
+            return Response.status(201).entity(u).build();
+
+        }
+        catch (UserNotFoundException ex){
+            return Response.status(501).build();
+        }
     }
 }
