@@ -39,14 +39,14 @@
   <h1>Menú de Objetos</h1>
 </header>
 
-<!-- Campo para ingresar el nombre de usuario -->
+<!-- Campo para ingresar el nombre de usuario
 <section class="container mt-4">
   <div class="mb-3">
     <label for="username" class="form-label">Nombre de Usuario</label>
     <input type="text" id="username" class="form-control" placeholder="Introduce tu nombre">
   </div>
   <button class="btn btn-custom" onclick="loadUserItems()">Cargar objetos del usuario</button>
-</section>
+</section> -->
 
 <section class="container mt-4">
   <table class="table table-bordered text-center">
@@ -86,7 +86,7 @@
 
     try {
       // Realiza la solicitud GET para obtener los objetos del usuario
-      const response = await fetch(`${apiUrlStore}${username}`);
+      const response = await fetch(`${apiUrlStore}Items/${username}`);
 
       if (!response.ok) {
         throw new Error(`Error al obtener los objetos del usuario: ${response.statusText}`);
@@ -112,6 +112,8 @@
       console.error('Error al cargar los objetos del usuario:', error);
     }
   }
+  // Cargar los objetos al cargar la página
+  document.addEventListener('DOMContentLoaded', loadUserItems);
 </script>
 
 </body>

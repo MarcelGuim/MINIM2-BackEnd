@@ -71,7 +71,7 @@
                     if (response.ok) {
                         const user = await response.json();
                         console.log("Inicio de sesión exitoso:", user);
-                        localStorage.setItem('username', nombre)
+                        localStorage.setItem('username', nombre);
                         window.location.href = 'Menu.html';
                     } else {
                         document.getElementById('error-message').textContent = "Usuario o contraseña incorrectos.";
@@ -109,7 +109,7 @@
                     body: JSON.stringify({ name: nombre, password: contraseña })
                 });
 
-                if (registerResponse.status === 409) { // Si el usuario ya existe
+                if (registerResponse.status === 501) { // Si el usuario ya existe
                     mensajeError.textContent = 'El nombre de usuario ya está registrado. Por favor, elige otro nombre.';
                 } else if (registerResponse.ok) {
                     mensajeExito.textContent = 'Registro exitoso.';

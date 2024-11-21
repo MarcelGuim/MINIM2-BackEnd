@@ -39,14 +39,20 @@
   <h1>Menú de Objetos</h1>
 </header>
 
-<!-- Campo para ingresar el nombre de usuario -->
+<!-- Campo para ingresar el nombre de usuario
 <section class="container mt-4">
   <div class="mb-3">
     <label for="username" class="form-label">Nombre de Usuario</label>
     <input type="text" id="username" class="form-control" placeholder="Introduce tu nombre">
   </div>
-</section>
+</section>-->
 
+
+<section class="container mt-4">
+  <div class="mb-3">
+    <h1>V1</h1>
+  </div>
+</section>
 
 <section class="container mt-4">
   <table class="table table-bordered text-center">
@@ -116,8 +122,9 @@
     }
 
     try {
-      // Hacer la compra de un artículo usando el endpoint /store/register/{NameUser}/{idItem}
-      const response = await fetch(`${apiUrlStore}register/${username}/${idItem}`, {
+      // Hacer la compra de un artículo usando el endpoint /store/buyItem/{NameUser}/{idItem}
+      // url de buy item
+      const response = await fetch(`${apiUrlStore}buyItem/${username}/${idItem}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +135,7 @@
         alert('¡Compra exitosa!');
       } else if (response.status === 500) {
         alert('Error de validación. Asegúrate de que los datos sean correctos.');
-      } else if (response.status === 501) {
+      } else if (response.status === 503) {
         alert('No tienes suficiente dinero para comprar este objeto.');
       } else {
         alert('Error desconocido. Intenta nuevamente más tarde.');

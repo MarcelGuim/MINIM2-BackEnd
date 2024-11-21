@@ -34,6 +34,7 @@ public class StoreService {
             this.cm = CharacterManagerImpl.getInstance();
             if (im.size() == 0) {
                 Item item1 = new Item("Truco1");
+                item1.setCost(10);
                 Item item2 = new Item("Truco2");
                 Item item3 = new Item("PelaCables2000");
                 Item item4 = new Item("Truco3");
@@ -45,6 +46,7 @@ public class StoreService {
                 User u1 = new User("Blau", "Blau2002");
                 User u2 = new User("Lluc", "Falco12");
                 User u3 = new User("David", "1234");
+                u3.setMoney(100);
                 User u4 = new User("Marcel", "1234");
                 u4.setMoney(50);
                 this.cm.addCharacter(1,1,1,"primer",10);
