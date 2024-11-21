@@ -1,5 +1,6 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
+import edu.upc.dsa.exceptions.UserRepeatedException;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
@@ -19,37 +20,47 @@ public class ItemService {
     private ItemManager im;
     private StoreManager sm;
     private UserManager um;
+    private CharacterManager cm;
     public ItemService() {
         this.im = ItemManagerImpl.getInstance();
         this.sm = StoreManagerImpl.getInstance();
         this.um = UserManagerImpl.getInstance();
+        this.cm = CharacterManagerImpl.getInstance();
         if (im.size()==0) {
-            Item item1 = new Item("Truco1");
-            item1.setCost(10.0);
-            Item item2 = new Item("Truco2");
-            item2.setCost(12.0);
-            Item item3 = new Item("PelaCables2000");
-            item3.setCost(75.0);
-            Item item4 = new Item("Truco3");
-            item4.setCost(14.0);
-            this.im.addItem(item1);
-            this.im.addItem(item2);
-            this.im.addItem(item3);
-            this.im.addItem(item4);
-            this.sm.addAllItems(this.im.findAll());
-            User u1 = new User("Blau", "Blau2002");
-            u1.setMoney(100.0);
-            User u2 = new User("Lluc", "Falco12");
-            u2.setMoney(100.0);
-            User u3 = new User("David", "1234");
-            u3.setMoney(100.0);
-            User u4 = new User("Marcel", "1234");
-            u4.setMoney(100.0);
-            this.um.addUser(u1);
-            this.um.addUser(u2);
-            this.um.addUser(u3);
-            this.um.addUser(u4);
-            this.sm.addAllUsers(this.um.findAll());
+            this.im = ItemManagerImpl.getInstance();
+            this.sm = StoreManagerImpl.getInstance();
+            this.um = UserManagerImpl.getInstance();
+            this.cm = CharacterManagerImpl.getInstance();
+            if (im.size() == 0) {
+                Item item1 = new Item("Truco1");
+                Item item2 = new Item("Truco2");
+                Item item3 = new Item("PelaCables2000");
+                Item item4 = new Item("Truco3");
+                this.im.addItem(item1);
+                this.im.addItem(item2);
+                this.im.addItem(item3);
+                this.im.addItem(item4);
+                this.sm.addAllItems(this.im.findAll());
+                User u1 = new User("Blau", "Blau2002");
+                User u2 = new User("Lluc", "Falco12");
+                User u3 = new User("David", "1234");
+                User u4 = new User("Marcel", "1234");
+                u4.setMoney(50);
+                this.cm.addCharacter(1,1,1,"primer",10);
+                this.cm.addCharacter(1,1,1,"segon",60);
+                this.cm.addCharacter(1,1,1,"tercer",50);
+                this.sm.addAllCharacters(this.cm.findAll());
+                try{
+                    this.um.addUser(u1);
+                    this.um.addUser(u2);
+                    this.um.addUser(u3);
+                    this.um.addUser(u4);
+                    this.sm.addAllUsers(this.um.findAll());
+                }
+                catch(UserRepeatedException ex){
+
+                }
+            }
         }
     }
     @DELETE

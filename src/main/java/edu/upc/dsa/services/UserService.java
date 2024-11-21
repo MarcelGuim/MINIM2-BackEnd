@@ -1,5 +1,7 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
+import edu.upc.dsa.exceptions.UserNotFoundException;
+import edu.upc.dsa.exceptions.UserRepeatedException;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
@@ -19,37 +21,47 @@ public class UserService {
     private ItemManager im;
     private StoreManager sm;
     private UserManager um;
+    private CharacterManager cm;
     public UserService() {
         this.im = ItemManagerImpl.getInstance();
         this.sm = StoreManagerImpl.getInstance();
         this.um = UserManagerImpl.getInstance();
-        if (im.size() == 0) {
-            Item item1 = new Item("Truco1");
-            item1.setCost(10.0);
-            Item item2 = new Item("Truco2");
-            item2.setCost(12.0);
-            Item item3 = new Item("PelaCables2000");
-            item3.setCost(75.0);
-            Item item4 = new Item("Truco3");
-            item4.setCost(14.0);
-            this.im.addItem(item1);
-            this.im.addItem(item2);
-            this.im.addItem(item3);
-            this.im.addItem(item4);
-            this.sm.addAllItems(this.im.findAll());
-            User u1 = new User("Blau", "Blau2002");
-            u1.setMoney(100.0);
-            User u2 = new User("Lluc", "Falco12");
-            u2.setMoney(100.0);
-            User u3 = new User("David", "1234");
-            u3.setMoney(100.0);
-            User u4 = new User("Marcel", "1234");
-            u4.setMoney(100.0);
-            this.um.addUser(u1);
-            this.um.addUser(u2);
-            this.um.addUser(u3);
-            this.um.addUser(u4);
-            this.sm.addAllUsers(this.um.findAll());
+        this.cm = CharacterManagerImpl.getInstance();
+        if (im.size()==0) {
+            this.im = ItemManagerImpl.getInstance();
+            this.sm = StoreManagerImpl.getInstance();
+            this.um = UserManagerImpl.getInstance();
+            this.cm = CharacterManagerImpl.getInstance();
+            if (im.size() == 0) {
+                Item item1 = new Item("Truco1");
+                Item item2 = new Item("Truco2");
+                Item item3 = new Item("PelaCables2000");
+                Item item4 = new Item("Truco3");
+                this.im.addItem(item1);
+                this.im.addItem(item2);
+                this.im.addItem(item3);
+                this.im.addItem(item4);
+                this.sm.addAllItems(this.im.findAll());
+                User u1 = new User("Blau", "Blau2002");
+                User u2 = new User("Lluc", "Falco12");
+                User u3 = new User("David", "1234");
+                User u4 = new User("Marcel", "1234");
+                u4.setMoney(50);
+                this.cm.addCharacter(1,1,1,"primer",10);
+                this.cm.addCharacter(1,1,1,"segon",60);
+                this.cm.addCharacter(1,1,1,"tercer",50);
+                this.sm.addAllCharacters(this.cm.findAll());
+                try{
+                    this.um.addUser(u1);
+                    this.um.addUser(u2);
+                    this.um.addUser(u3);
+                    this.um.addUser(u4);
+                    this.sm.addAllUsers(this.um.findAll());
+                }
+                catch(UserRepeatedException ex){
+
+                }
+            }
         }
     }
 
@@ -71,42 +83,49 @@ public class UserService {
     @ApiOperation(value = "create a new User", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
-            @ApiResponse(code = 500, message = "Validation Error")
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "User Exists")
 
     })
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(User user) {
 
-        if (user.getName() == null || user.getPassword() == null) {
-            return Response.status(500).entity(user).build();
+        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
+        //user.setRandomId();
+        try{
+            this.um.addUser(user);
+            this.sm.addUser(user);
+            return Response.status(201).entity(user).build();
         }
-
-        User addedUser = this.um.addUser(user);
-        if (addedUser == null) {
-            return Response.status(409).entity("El usuario ya existe. Por favor, elige otro nombre.").build();
+        catch(UserRepeatedException ex){
+            return Response.status(501).entity(user).build();
         }
-
-        this.sm.addUser(user);
-        return Response.status(201).entity(addedUser).build();
     }
 
     @POST
     @ApiOperation(value = "Login a new User", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
-            @ApiResponse(code = 500, message = "Validation Error")
-
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "Wrong Password"),
+            @ApiResponse(code = 502, message = "User Not Found")
     })
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response LoginUser(User user) {
 
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).build();
-        if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
-            return Response.status(201).entity(user).build();
-        else
-            return Response.status(500).build();
+        try{
+            if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
+                return Response.status(201).entity(user).build();
+            else
+                return Response.status(501).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(502).build();
+        }
     }
 
     @GET
@@ -133,5 +152,27 @@ public class UserService {
         User u = this.um.updateUser(user);
         if (u == null) return Response.status(404).build();
         return Response.status(201).build();
+    }
+
+    @POST
+    @ApiOperation(value = "Get stats of user", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "Validation Error")
+
+    })
+    @Path("/stats/{userName}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response GetStatsUser( @PathParam("userName") String userName) {
+        if (userName == null)  return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(userName);
+            return Response.status(201).entity(u).build();
+
+        }
+        catch (UserNotFoundException ex){
+            return Response.status(501).build();
+        }
     }
 }

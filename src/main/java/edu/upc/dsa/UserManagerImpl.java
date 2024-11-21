@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.UserNotFoundException;
+import edu.upc.dsa.exceptions.UserRepeatedException;
 import edu.upc.dsa.models.User;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class UserManagerImpl implements UserManager {
         return ret;
     }
 
-    public User addUser(User u) {
+    public User addUser(User u) throws UserRepeatedException {
         logger.info("new User " + u);
         if(users.get(u.getName()) == null)
         {
@@ -40,15 +41,15 @@ public class UserManagerImpl implements UserManager {
         }
         else{
             logger.warn("User already exists with that name");
-            return null;
+            throw new UserRepeatedException();
         }
     }
 
-    public User addUser(String user, String password){
+    public User addUser(String user, String password) throws UserRepeatedException{
         return this.addUser(null, user, password);
     }
 
-    public User addUser(String id, String user, String password) {
+    public User addUser(String id, String user, String password) throws UserRepeatedException {
         return this.addUser(new User(id, user,password));
     }
 
@@ -72,7 +73,7 @@ public class UserManagerImpl implements UserManager {
         return u;
     }
 
-    public User getUserFromUsername(String _username) {
+    public User getUserFromUsername(String _username) throws UserNotFoundException{
         logger.info("getUser("+_username+")");
 
         for (User u: this.users.values()) {
@@ -83,7 +84,7 @@ public class UserManagerImpl implements UserManager {
             }
         }
         logger.warn("not found " + _username);
-        return null;
+        throw new UserNotFoundException();
     }
 
 
