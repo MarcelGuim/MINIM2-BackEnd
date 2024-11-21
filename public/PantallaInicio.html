@@ -23,6 +23,9 @@
         .error-message {
             color: red;
         }
+        .success-message {
+        color: green;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +71,7 @@
                     if (response.ok) {
                         const user = await response.json();
                         console.log("Inicio de sesión exitoso:", user);
-                        // Aquí puedes redirigir al usuario o mostrar una página de bienvenida
+                        window.location.href = 'Menu.html';
                     } else {
                         document.getElementById('error-message').textContent = "Usuario o contraseña incorrectos.";
                     }
@@ -105,6 +108,8 @@
                 document.getElementById('error-message').textContent = 'Por favor, completa todos los campos.';
             }
         }
+
+
     </script>
 
     <!-- Formulario para Iniciar Sesión -->
@@ -137,10 +142,12 @@
             <label for="contraseñaRegistro" class="form-label">Contraseña:</label>
             <input type="password" class="form-control" id="contraseñaRegistro" name="contraseñaRegistro" placeholder="Escribe tu contraseña" required>
         </div>
-
+        <div class="mb-3">
+            <label for="contraseña2" class="form-label">Repite la contraseña:</label>
+            <input type="password" class="form-control" id="contraseña2" name="contraseña2" placeholder="Repite tu contraseña" required>
+        </div>
         <button type="submit" class="btn btn-custom">Registrarse</button>
     </form>
-
 </section>
 
 <!-- Bootstrap JS y Popper desde CDN -->
