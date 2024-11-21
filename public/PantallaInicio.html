@@ -71,6 +71,7 @@
                     if (response.ok) {
                         const user = await response.json();
                         console.log("Inicio de sesión exitoso:", user);
+                        localStorage.setItem('username', nombre)
                         window.location.href = 'Menu.html';
                     } else {
                         document.getElementById('error-message').textContent = "Usuario o contraseña incorrectos.";

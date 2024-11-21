@@ -77,11 +77,11 @@
 
   // Función para cargar los objetos del usuario
   async function loadUserItems() {
-    const username = document.getElementById('username').value; // Obtener el nombre de usuario
+    const username = localStorage.getItem('username'); // Obtener el nombre de usuario
 
     if (!username) {
-      alert('Por favor ingresa tu nombre de usuario.');
-      return;
+      //alert('Por favor ingresa tu nombre de usuario.');
+      //return;
     }
 
     try {
