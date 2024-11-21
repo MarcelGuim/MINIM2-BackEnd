@@ -1,7 +1,9 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
+import edu.upc.dsa.exceptions.HashMissingException;
 import edu.upc.dsa.exceptions.UserNotFoundException;
 import edu.upc.dsa.exceptions.UserRepeatedException;
+import edu.upc.dsa.exceptions.WrongPasswordException;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
@@ -109,15 +111,14 @@ public class UserService {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
             @ApiResponse(code = 501, message = "Wrong Password"),
-            @ApiResponse(code = 502, message = "User Not Found")
+            @ApiResponse(code = 502, message = "User Not Found"),
     })
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response LoginUser(User user) {
-
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).build();
         try{
-            if(user.getPassword().equals(um.getUserFromUsername(user.getName()).getPassword()))
+            if(user.getPassword().equals(this.um.getUserFromUsername(user.getName()).getPassword()))
                 return Response.status(201).entity(user).build();
             else
                 return Response.status(501).build();

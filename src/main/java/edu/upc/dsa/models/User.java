@@ -7,6 +7,7 @@ public class User {
     String name;
     String password;
     double money;
+    String Hash;
     static int lastId;
 
     public User() {
@@ -54,6 +55,14 @@ public class User {
     }
     public void setMoney(double money) {
         this.money = money;
+    }
+
+    public String getHash() {
+        return Hash;
+    }
+
+    public void setHash(String hash) {
+        Hash = hash;
     }
 
     @Override

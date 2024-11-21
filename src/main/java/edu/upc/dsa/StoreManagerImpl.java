@@ -131,5 +131,14 @@ public class StoreManagerImpl implements StoreManager {
         if(charactersOfUsers.get(userName).size() == 0) throw new UserHasNoCharacterException();
         return charactersOfUsers.get(userName);
     }
+    public void clear(){
+        itemsOfUsers.clear(); //Key=user name
+        usersOfItems.clear(); //Key=item id
+        charactersOfUsers.clear(); //Key=user name
+        usersOfCharacter.clear(); //Key=character name
+        characters.clear();
+        users.clear();
+        items.clear();
+    }
 
 }
