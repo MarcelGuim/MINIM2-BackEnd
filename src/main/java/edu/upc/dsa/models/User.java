@@ -7,6 +7,7 @@ public class User {
     String name;
     String password;
     double money;
+    double cobre;
     String Hash;
     static int lastId;
 
@@ -63,6 +64,14 @@ public class User {
 
     public void setHash(String hash) {
         Hash = hash;
+    }
+
+    public double getCobre() {
+        return cobre;
+    }
+
+    public void setCobre(double cobre) {
+        this.cobre = cobre;
     }
 
     @Override

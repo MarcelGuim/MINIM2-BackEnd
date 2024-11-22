@@ -1,9 +1,6 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
-import edu.upc.dsa.exceptions.HashMissingException;
-import edu.upc.dsa.exceptions.UserNotFoundException;
-import edu.upc.dsa.exceptions.UserRepeatedException;
-import edu.upc.dsa.exceptions.WrongPasswordException;
+import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
@@ -176,6 +173,81 @@ public class UserService {
         }
         catch (UserNotFoundException ex){
             return Response.status(501).build();
+        }
+    }
+
+    @POST
+    @ApiOperation(value = "User Gets Multiplicador", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found")
+    })
+    @Path("/GetMultiplicadorForCobre/{NameUser}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response UserGetsMultiplicador(@PathParam("NameUser") String NameUser) {
+        if(NameUser == null) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(NameUser);
+            double precio = this.um.damePrecioCobre(u);
+            return Response.status(200).entity(String.valueOf(precio)).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+    }
+    @POST
+    @ApiOperation(value = "User Updates Cobre", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= double.class),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+
+    })
+    @Path("/updateCobre/{NameUser}/{Cobre}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response UserUpdatesCobre(@PathParam("NameUser") String NameUser, @PathParam("Cobre") double Cobre) {
+        if(NameUser == null || Cobre == 0) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(NameUser);
+            this.um.updateCobre(Cobre, u);
+            return Response.status(201).entity(String.valueOf(u.getCobre())).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+    }
+
+    @POST
+    @ApiOperation(value = "User sells all Cobre", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 502, message = "User has no cobre"),
+            @ApiResponse(code = 503, message = "User has no multiplicador")
+
+    })
+    @Path("/sellCobre/{NameUser}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response UserSellsCobre(@PathParam("NameUser") String NameUser) {
+        if(NameUser == null) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(NameUser);
+            this.um.updateMoney(u);
+            return Response.status(201).entity(String.valueOf(u.getMoney())).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+        catch(UserHasNoCobreException ex){
+            return Response.status(502).build();
+        }
+        catch(UserHasNoMultiplicadorException ex){
+            return Response.status(503).build();
         }
     }
 }

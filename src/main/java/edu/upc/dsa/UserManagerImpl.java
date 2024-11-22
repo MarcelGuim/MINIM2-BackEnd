@@ -1,9 +1,6 @@
 package edu.upc.dsa;
 
-import edu.upc.dsa.exceptions.HashMissingException;
-import edu.upc.dsa.exceptions.UserNotFoundException;
-import edu.upc.dsa.exceptions.UserRepeatedException;
-import edu.upc.dsa.exceptions.WrongPasswordException;
+import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.util.RandomUtils;
 
@@ -21,10 +18,12 @@ import java.security.NoSuchAlgorithmException;
 public class UserManagerImpl implements UserManager {
     private static UserManager instance;
     protected HashMap<String, User> users;
+    protected HashMap<String, Double> multiplicadors;
     final static Logger logger = Logger.getLogger(UserManagerImpl.class);
 
     private UserManagerImpl() {
         this.users = new HashMap<>();
+        this.multiplicadors = new HashMap<>();
     }
 
     public static UserManager getInstance() {
@@ -113,6 +112,29 @@ public class UserManagerImpl implements UserManager {
         this.users.remove(u);
 
     }
+    public void updateCobre(double cobre, User user){
+        user.setCobre(cobre + user.getCobre());
+    };
+    public double updateMoney(User user) throws UserHasNoCobreException, UserHasNoMultiplicadorException{
+        if (multiplicadors.containsKey(user.getName())) {
+            if(user.getCobre() != 0){
+                double resultat = user.getMoney() + user.getCobre()*multiplicadors.get(user.getName());
+                user.setMoney(resultat);
+                user.setCobre(0);
+                return resultat;
+            }
+            else throw new UserHasNoCobreException();
+        }
+        else throw new UserHasNoMultiplicadorException();
+    };
+    public double damePrecioCobre(User user){
+        double random = Math.random();
+        double multiplicador = 1 + Math.log(1 + (9 * random));
+        double arrodonit = Math.round(multiplicador*10.0)/10.0;
+        multiplicadors.put(user.getName(), arrodonit);
+        return arrodonit;
+    };
+
 
     @Override
     public User updateUser(User u) {
@@ -132,28 +154,5 @@ public class UserManagerImpl implements UserManager {
     public void clear() {
         this.users.clear();
     }
-
-    public boolean LoginUser(User UserEnviat, User UserServidor) throws WrongPasswordException, HashMissingException {
-        if(UserServidor.getHash() == null){
-            UserServidor.setHash(RandomUtils.getHash());
-            throw new HashMissingException();
-        }
-        try{
-            String concatenat = UserServidor.getPassword() + UserServidor.getHash();
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(concatenat.getBytes());
-            StringBuilder hashHex = new StringBuilder();
-            for (byte b : hash) {
-                hashHex.append(String.format("%02x", b));
-            }
-            if(UserEnviat.getPassword().equals(hashHex.toString()))
-                return true;
-            else
-                throw new WrongPasswordException();
-        }
-        catch(NoSuchAlgorithmException ex){
-            return false;
-        }
-    };
 
 }
