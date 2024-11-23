@@ -32,14 +32,18 @@ public class ItemService {
             this.um = UserManagerImpl.getInstance();
             this.cm = CharacterManagerImpl.getInstance();
             if (im.size() == 0) {
-                Item item1 = new Item("Truco1");
-                Item item2 = new Item("Truco2");
+                Item item1 = new Item("Cizalla");
+                Item item2 = new Item("Sierra Electrica");
                 Item item3 = new Item("PelaCables2000");
-                Item item4 = new Item("Truco3");
+                Item item4 = new Item("Sierra");
                 item1.setCost(5);
                 item2.setCost(50);
                 item3.setCost(500);
                 item4.setCost(2000);
+                item1.setItem_url("http://10.0.2.2:8080/itemsIcons/cizalla.png");
+                item2.setItem_url("http://10.0.2.2:8080/itemsIcons/sierraelec.png");
+                item3.setItem_url("http://10.0.2.2:8080/itemsIcons/pelacables.png");
+                item4.setItem_url("http://10.0.2.2:8080/itemsIcons/sierra.png");
                 this.im.addItem(item1);
                 this.im.addItem(item2);
                 this.im.addItem(item3);

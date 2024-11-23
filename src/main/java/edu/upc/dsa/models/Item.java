@@ -7,6 +7,7 @@ public class Item {
     String id;
     String name;
     double cost;
+    String item_url;
     static int lastId;
 
     public Item() {
@@ -20,6 +21,22 @@ public class Item {
         this();
         if (id != null) this.setId(id);
         this.setName(name);
+    }
+
+    public String getItem_url() {
+        return item_url;
+    }
+
+    public void setItem_url(String item_url) {
+        this.item_url = item_url;
+    }
+
+    public static int getLastId() {
+        return lastId;
+    }
+
+    public static void setLastId(int lastId) {
+        Item.lastId = lastId;
     }
 
     public double getCost() {
@@ -48,7 +65,7 @@ public class Item {
 
     @Override
     public String toString() {
-        return "Item [id="+id+", name=" + name +"]";
+        return "Item [id="+id+", name=" + name +"url: "+item_url+"]";
     }
 
 }
