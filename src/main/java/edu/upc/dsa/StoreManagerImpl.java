@@ -141,4 +141,21 @@ public class StoreManagerImpl implements StoreManager {
         items.clear();
     }
 
+    public List<Item> getItemsUserCanBuy(User u) throws NotEnoughMoneyException{
+        List<Item> itemsUserCanBuy = new ArrayList<>();
+        for(Item i:items){
+            if(i.getCost()<=u.getMoney()) itemsUserCanBuy.add(i);
+        }
+        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
+        return itemsUserCanBuy;
+    };
+    public List<Character> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException{
+        List<Character> charatersUserCanBuy = new ArrayList<>();
+        for(Character c:characters){
+            if(c.getCost()<=u.getMoney()) charatersUserCanBuy.add(c);
+        }
+        if(charatersUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
+        return charatersUserCanBuy;
+    };
+
 }

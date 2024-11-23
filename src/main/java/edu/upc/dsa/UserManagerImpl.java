@@ -4,15 +4,16 @@ import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.util.RandomUtils;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
-//Libreries de Hash:
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.Properties;
 
 
 public class UserManagerImpl implements UserManager {
@@ -52,12 +53,12 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
-    public User addUser(String user, String password) throws UserRepeatedException{
-        return this.addUser(null, user, password);
+    public User addUser(String user, String password,  String mail) throws UserRepeatedException{
+        return this.addUser(null, user, password, mail);
     }
 
-    public User addUser(String id, String user, String password) throws UserRepeatedException {
-        return this.addUser(new User(id, user,password));
+    public User addUser(String id, String user, String password,  String mail) throws UserRepeatedException {
+        return this.addUser(new User(id, user,password, mail));
     }
 
     public User getUser(String id) {
@@ -153,6 +154,55 @@ public class UserManagerImpl implements UserManager {
     }
     public void clear() {
         this.users.clear();
+    }
+
+    public void changePassword(User user, String pswd){
+        user.setPassword(pswd);
+    };
+    public void RecoverPassword(User user) throws Exception{
+        String host = "smtp.gmail.com";
+        final String fromEmail = "correuperdsa@gmail.com";
+        final String password = "eqqq ymrx grbg htld";
+        String toEmail = user.getCorreo();
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        // Crear el missatge
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(fromEmail));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+        message.setSubject("Recuperació de contrasenya Per RobaCobres");
+
+        // Cos del text del correu
+        MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setText("Hola " + user.getName() + ",\n\nLa teva contrasenya és: " + user.getPassword() + "\n\nIntenta no tornara a oblidar-ho, olvidonaaa!");
+
+        // Adjuntar imatge
+        MimeBodyPart imagePart = new MimeBodyPart();
+        File imageFile = new File("public/Olvidonaa.jpg");
+        imagePart.attachFile(imageFile);
+        imagePart.setFileName("Olvidonaa.jpg"); // Nom de l'arxiu al correu
+
+        // Crear el contingut multipart
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(textPart); // Afegir el text
+        multipart.addBodyPart(imagePart); // Afegir la imatge
+
+        // Assignar el contingut al missatge
+        message.setContent(multipart);
+
+        // Enviar el correu
+        Transport.send(message);
     }
 
 }

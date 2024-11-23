@@ -33,21 +33,26 @@ public class UserService {
             this.cm = CharacterManagerImpl.getInstance();
             if (im.size() == 0) {
                 Item item1 = new Item("Truco1");
-                item1.setCost(10);
                 Item item2 = new Item("Truco2");
                 Item item3 = new Item("PelaCables2000");
                 Item item4 = new Item("Truco3");
+                item1.setCost(5);
+                item2.setCost(50);
+                item3.setCost(500);
+                item4.setCost(2000);
                 this.im.addItem(item1);
                 this.im.addItem(item2);
                 this.im.addItem(item3);
                 this.im.addItem(item4);
                 this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002");
-                User u2 = new User("Lluc", "Falco12");
-                User u3 = new User("David", "1234");
-                u3.setMoney(100);
-                User u4 = new User("Marcel", "1234");
-                u4.setMoney(50);
+                User u1 = new User("Blau", "Blau2002","emailBlau");
+                User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
+                User u3 = new User("David", "1234","emailDavid");
+                User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
+                u1.setMoney(10);
+                u2.setMoney(100);
+                u3.setMoney(1000);
+                u4.setMoney(5000);
                 this.cm.addCharacter(1,1,1,"primer",10);
                 this.cm.addCharacter(1,1,1,"segon",60);
                 this.cm.addCharacter(1,1,1,"tercer",50);
@@ -248,6 +253,55 @@ public class UserService {
         }
         catch(UserHasNoMultiplicadorException ex){
             return Response.status(503).build();
+        }
+    }
+
+    @PUT
+    @ApiOperation(value = "User Has Forgoten Password", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found")
+    })
+    @Path("/ChangePassword/{UserName}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response UserGetsMultiplicador(String password, @PathParam("UserName") String UserName) {
+        if(UserName == null|| password == null) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(UserName);
+            this.um.changePassword(u,password);
+            return Response.status(201).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "Recover Password", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 502, message = "Error sending the e-mail")
+    })
+    @Path("/RecoverPassword/{UserName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response RecoverPassword( @PathParam("UserName") String UserName) {
+        if(UserName == null)  return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(UserName);
+            this.um.RecoverPassword(u);
+            return Response.status(201).build()  ;
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+        catch (Exception ex)
+        {
+            return Response.status(502).build();
         }
     }
 }

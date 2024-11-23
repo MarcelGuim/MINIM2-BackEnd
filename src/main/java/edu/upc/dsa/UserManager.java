@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface UserManager {
 
-    public User addUser(String id, String user, String password) throws UserRepeatedException;
-    public User addUser(String user, String password) throws UserRepeatedException;
+    public User addUser(String id, String user, String password,  String mail) throws UserRepeatedException;
+    public User addUser(String user, String password, String mail) throws UserRepeatedException;
     public User addUser(User u) throws UserRepeatedException;
     public User getUser(String id);
     public User getUser2(String id) throws UserNotFoundException;
@@ -21,4 +21,6 @@ public interface UserManager {
     public double damePrecioCobre(User user);
     public void clear();
     public int size();
+    public void changePassword(User user, String pswd);
+    public void RecoverPassword(User user) throws Exception;
 }

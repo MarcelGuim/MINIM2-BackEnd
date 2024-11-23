@@ -22,4 +22,6 @@ public interface StoreManager {
     public List<Character> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException;
     public List<Character> getCharacterUser(String userName) throws UserNotFoundException, UserHasNoCharacterException;
     public void clear();
+    public List<Item> getItemsUserCanBuy(User u) throws  NotEnoughMoneyException;
+    public List<Character> getCharacterUserCanBuy(User u) throws  NotEnoughMoneyException;
 }

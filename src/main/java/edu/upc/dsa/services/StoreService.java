@@ -35,21 +35,26 @@ public class StoreService {
             this.cm = CharacterManagerImpl.getInstance();
             if (im.size() == 0) {
                 Item item1 = new Item("Truco1");
-                item1.setCost(10);
                 Item item2 = new Item("Truco2");
                 Item item3 = new Item("PelaCables2000");
                 Item item4 = new Item("Truco3");
+                item1.setCost(5);
+                item2.setCost(50);
+                item3.setCost(500);
+                item4.setCost(2000);
                 this.im.addItem(item1);
                 this.im.addItem(item2);
                 this.im.addItem(item3);
                 this.im.addItem(item4);
                 this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002");
-                User u2 = new User("Lluc", "Falco12");
-                User u3 = new User("David", "1234");
-                u3.setMoney(100);
-                User u4 = new User("Marcel", "1234");
-                u4.setMoney(50);
+                User u1 = new User("Blau", "Blau2002","emailBlau");
+                User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
+                User u3 = new User("David", "1234","emailDavid");
+                User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
+                u1.setMoney(10);
+                u2.setMoney(100);
+                u3.setMoney(1000);
+                u4.setMoney(5000);
                 this.cm.addCharacter(1,1,1,"primer",10);
                 this.cm.addCharacter(1,1,1,"segon",60);
                 this.cm.addCharacter(1,1,1,"tercer",50);
@@ -177,6 +182,58 @@ public class StoreService {
             return Response.status(501).build();
         }
         catch(UserHasNoCharacterException ex){
+            return Response.status(502).build();
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "get all Characters a user can buy", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response = Character.class, responseContainer="List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 502, message = "User has not enough Money"),
+    })
+    @Path("CharactersUserCanBuy/{NameUser}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCharactersUserCanBuy(@PathParam("NameUser") String NameUser) {
+        if(NameUser == null) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(NameUser);
+            List<Character> characters = this.sm.getCharacterUserCanBuy(u);
+            GenericEntity<List<Character>> entity = new GenericEntity<List<Character>>(characters) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch(UserNotFoundException ex){
+            return Response.status(501).build();
+        }
+        catch(NotEnoughMoneyException ex){
+            return Response.status(502).build();
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "get all Items a user can buy", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 502, message = "User has not enough Money"),
+    })
+    @Path("ItemsUserCanBuy/{NameUser}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getItemssUserCanBuy(@PathParam("NameUser") String NameUser) {
+        if(NameUser == null) return Response.status(500).build();
+        try{
+            User u = this.um.getUserFromUsername(NameUser);
+            List<Item> items = this.sm.getItemsUserCanBuy(u);
+            GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch(UserNotFoundException ex){
+            return Response.status(501).build();
+        }
+        catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
         }
     }

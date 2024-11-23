@@ -6,6 +6,7 @@ public class User {
     String id;
     String name;
     String password;
+    String correo;
     double money;
     double cobre;
     String Hash;
@@ -14,15 +15,16 @@ public class User {
     public User() {
         this.setId(RandomUtils.getId());
     }
-    public User(String user, String password) {
-        this(null, user, password);
+    public User(String user, String password, String correo) {
+        this(null, user, password, correo);
     }
 
-    public User(String id, String user, String password) {
+    public User(String id, String user, String password, String correo) {
         this();
         if (id != null) this.setId(id);
         this.setName(user);
         this.setPassword(password);
+        this.setCorreo(correo);
     }
 
     public void setRandomId(){
@@ -72,6 +74,14 @@ public class User {
 
     public void setCobre(double cobre) {
         this.cobre = cobre;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     @Override

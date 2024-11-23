@@ -35,10 +35,10 @@ public class StoreManagerTest {
             this.im.addItem(item3);
             this.im.addItem(item4);
             this.sm.addAllItems(this.im.findAll());
-            User u1 = new User("Blau", "Blau2002");
-            User u2 = new User("Lluc", "Falco12");
-            User u3 = new User("David", "1234");
-            User u4 = new User("Marcel", "1234");
+            User u1 = new User("Blau", "Blau2002","emailBlau");
+            User u2 = new User("Lluc", "Falco12","emailLluc");
+            User u3 = new User("David", "1234","emailDavid");
+            User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
             u4.setMoney(50);
             this.cm.addCharacter(1, 1, 1, "primer", 10);
             this.cm.addCharacter(1, 1, 1, "segon", 60);
