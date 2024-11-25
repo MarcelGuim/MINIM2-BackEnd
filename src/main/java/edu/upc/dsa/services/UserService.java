@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -75,6 +76,87 @@ public class UserService {
         }
     }
 
+    //PART AUTENT
+    @POST
+    @ApiOperation(value = "Login a new User", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 500, message = "Validation Error"),
+            @ApiResponse(code = 501, message = "Wrong Password"),
+            @ApiResponse(code = 502, message = "User Not Found"),
+    })
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response LoginUser(User user) {
+        if (user.getName() == null || user.getPassword() == null) {
+            return Response.status(500).build();
+        }
+        try {
+            // Verificar si la contraseña es correcta
+            if (user.getPassword().equals(this.um.getUserFromUsername(user.getName()).getPassword())) {
+
+                // Crear una cookie con un identificador aleatorio o un token de sesión
+                String cookieValue = generateRandomSessionId();
+                NewCookie authCookie = new NewCookie(
+                        "authToken",    // Nombre de la cookie
+                        cookieValue,          // Valor de la cookie (puede ser un token generado o sesión)
+                        "/",                  // Path donde la cookie es válida ("/" para toda la aplicación)
+                        null,                 // Dominio de la cookie (null para el dominio actual)
+                        "Autenticación",      // Comentario (opcional)
+                        60 * 60 * 24,         // Expiración en segundos (aquí es 1 día)
+                        false,                // Si debe ser solo para HTTPS (aquí false para desarrollo)
+                        true                  // Hacer la cookie accesible solo en HTTP (no por JS)
+                );
+                SessionManager sessionManager = SessionManager.getInstance();
+                sessionManager.createSession(cookieValue,user);
+
+
+                // Devolver la respuesta con la cookie de autenticación
+                return Response.status(201)
+                        .entity(user)  // Enviar el objeto `user` en la respuesta
+                        .cookie(authCookie)  // Añadir la cookie a la respuesta
+                        .build();
+            } else {
+                return Response.status(501).build();  // Contraseña incorrecta
+            }
+        } catch (UserNotFoundException ex) {
+            return Response.status(502).build();  // Usuario no encontrado
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "Check Session Validity", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "AUTHORIZED"),
+            @ApiResponse(code = 501, message = "UNAUTHORIZED")
+    })
+    @Path("/sessionCheck")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSession(@CookieParam("authToken") String authToken) {
+        if (SessionManager.getInstance().getSession(authToken)==null)
+            return Response.status(501).build() ;
+        else
+            return Response.status(201).build();
+    }
+
+    @GET
+    @ApiOperation(value = "LogOut", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "OK"),
+            @ApiResponse(code = 501, message = "UNAUTHORIZED")
+    })
+    @Path("/sessionOut")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response quitSession(@CookieParam("authToken") String authToken) {
+        if (SessionManager.getInstance().getSession(authToken)==null)
+            return Response.status(501).build() ;
+        else{
+            SessionManager.getInstance().removeSession(authToken);
+            return Response.status(201).build();
+        }
+    }
+
+    //PART USERS MANAGER
     @DELETE
     @ApiOperation(value = "delete a User", notes = "hello")
     @ApiResponses(value = {
@@ -110,30 +192,6 @@ public class UserService {
         }
         catch(UserRepeatedException ex){
             return Response.status(501).entity(user).build();
-        }
-    }
-
-    @POST
-    @ApiOperation(value = "Login a new User", notes = "hello")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response=User.class),
-            @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Wrong Password"),
-            @ApiResponse(code = 502, message = "User Not Found"),
-    })
-    @Path("/login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response LoginUser(User user) {
-        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).build();
-        try{
-            if(user.getPassword().equals(this.um.getUserFromUsername(user.getName()).getPassword()))
-                return Response.status(201).entity(user).build();
-            else
-                return Response.status(501).build();
-        }
-        catch(UserNotFoundException ex)
-        {
-            return Response.status(502).build();
         }
     }
 
@@ -307,5 +365,9 @@ public class UserService {
         {
             return Response.status(502).build();
         }
+    }
+
+    private String generateRandomSessionId() {
+        return java.util.UUID.randomUUID().toString();  // Genera un UUID aleatorio como token de sesión
     }
 }

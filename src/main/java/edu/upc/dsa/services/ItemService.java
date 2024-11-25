@@ -8,11 +8,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import javax.mail.Session;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+
+import static org.eclipse.persistence.expressions.ExpressionOperator.Log;
 
 @Api(value = "/items", description = "Endpoint to Users Service")
 @Path("/items")
@@ -95,10 +98,12 @@ public class ItemService {
     })
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItems() {
+    public Response getItems(@CookieParam("authToken") String authToken) {
 
         List<Item> items = this.im.findAll();
-
+        //TREUREHO ES UN TEST
+        User u=SessionManager.getInstance().getSession(authToken);
+        System.out.println(u.getName());
         GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
         return Response.status(201).entity(entity).build()  ;
 

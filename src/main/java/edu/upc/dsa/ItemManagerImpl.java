@@ -5,6 +5,8 @@ import edu.upc.dsa.models.Item;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import edu.upc.dsa.models.User;
 import org.apache.log4j.Logger;
 
 public class ItemManagerImpl implements ItemManager {
@@ -103,4 +105,5 @@ public class ItemManagerImpl implements ItemManager {
     public void clear() {
         this.items.clear();
     }
+
 }
