@@ -87,12 +87,13 @@ public class StoreService {
             @ApiResponse(code = 503, message = "Not enough Money")
 
     })
-    @Path("/buyItem/{NameUser}/{idItem}")
+    @Path("/buyItem/{idItem}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserBuys(@PathParam("NameUser") String NameUser, @PathParam("idItem") String idItem) {
-        if(NameUser == null || idItem == null) return Response.status(500).build();
+    public Response UserBuys( @PathParam("idItem") String idItem,@CookieParam("authToken") String authToken) {
+        if(idItem == null) return Response.status(500).build();
         try{
-            List<Item> items = sm.BuyItemUser(idItem,NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
+            List<Item> items = sm.BuyItemUser(idItem,u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }

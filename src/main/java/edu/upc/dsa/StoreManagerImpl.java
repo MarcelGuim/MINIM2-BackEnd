@@ -88,6 +88,7 @@ public class StoreManagerImpl implements StoreManager {
             itemsOfUsers.get(u.getName()).add(i);
             usersOfItems.get(idItem).add(u);
             u.setMoney(u.getMoney()-i.getCost());
+            logger.info(u.getName()+" HA COMPRADO "+i.getName());
             return itemsOfUsers.get(u.getName());
         }
         else throw new NotEnoughMoneyException();
