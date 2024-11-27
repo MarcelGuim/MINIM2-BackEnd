@@ -18,6 +18,7 @@ import java.util.List;
 @Api(value = "/users", description = "Endpoint to Users Service")
 @Path("/users")
 public class UserService {
+    //test
     private ItemManager im;
     private StoreManager sm;
     private UserManager um;
