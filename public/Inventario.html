@@ -100,7 +100,7 @@
       items.forEach(item => {
         const row = `
           <tr>
-            <td><img src="https://via.placeholder.com/100" alt="${item.name}" class="img-thumbnail"></td>
+            <td><img src="${item.item_url}" alt="${item.name}" class="img-thumbnail"></td>
             <td>${item.name}</td>
             <td>$${item.cost.toFixed(2)}</td>
             <td><button class="btn btn-custom">Vender</button></td>
