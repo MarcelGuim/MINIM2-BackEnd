@@ -18,7 +18,7 @@ public class Main {
     // Base URI the Grizzly HTTP server will listen on LOCAL
     //public static final String BASE_URI = "http://localhost:8080/RobaCobres/";
     // Base URI the Grizzly HTTP server will listen on PRODUCCION
-    public static final String BASE_URI = "http://147.83.7.204/RobaCobres/";
+    public static final String BASE_URI = "http://147.83.7.204:8080/RobaCobres/";
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
@@ -34,7 +34,7 @@ public class Main {
 
         BeanConfig beanConfig = new BeanConfig();
 
-        beanConfig.setHost("147.83.7.204");  //PRODUCCION
+        beanConfig.setHost("147.83.7.204:8080");  //PRODUCCION
         //beanConfig.setHost("localhost:8080"); //LOCAL
         beanConfig.setBasePath("/RobaCobres");
         beanConfig.setContact("support@example.com");
