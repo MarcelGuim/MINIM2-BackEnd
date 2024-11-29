@@ -42,10 +42,10 @@ public class UserService {
                 item2.setCost(50);
                 item3.setCost(500);
                 item4.setCost(2000);
-                item1.setItem_url("http://10.0.2.2:8080/itemsIcons/cizalla.png");
-                item2.setItem_url("http://10.0.2.2:8080/itemsIcons/sierraelec.png");
-                item3.setItem_url("http://10.0.2.2:8080/itemsIcons/pelacables.png");
-                item4.setItem_url("http://10.0.2.2:8080/itemsIcons/sierra.png");
+                item1.setItem_url("http://147.83.7.204/itemsIcons/cizalla.png");
+                item2.setItem_url("http://147.83.7.204/itemsIcons/sierraelec.png");
+                item3.setItem_url("http://147.83.7.204/itemsIcons/pelacables.png");
+                item4.setItem_url("http://147.83.7.204/itemsIcons/sierra.png");
                 this.im.addItem(item1);
                 this.im.addItem(item2);
                 this.im.addItem(item3);
