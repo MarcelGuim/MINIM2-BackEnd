@@ -51,7 +51,7 @@ public class StoreService {
                 this.im.addItem(item3);
                 this.im.addItem(item4);
                 this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002","emailBlau");
+                User u1 = new User("Blau", "Blau2002","maria.blau.camarasa@estudiantat.upc.edu");
                 User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
                 User u3 = new User("David", "1234","emailDavid");
                 User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");

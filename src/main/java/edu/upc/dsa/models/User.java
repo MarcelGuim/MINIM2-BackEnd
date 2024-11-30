@@ -15,6 +15,7 @@ public class User {
     public User() {
         this.setId(RandomUtils.getId());
     }
+
     public User(String user, String password, String correo) {
         this(null, user, password, correo);
     }

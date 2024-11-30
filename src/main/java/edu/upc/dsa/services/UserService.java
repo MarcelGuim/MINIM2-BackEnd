@@ -1,6 +1,7 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChangePassword;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
@@ -51,7 +52,7 @@ public class UserService {
                 this.im.addItem(item3);
                 this.im.addItem(item4);
                 this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002","emailBlau");
+                User u1 = new User("Blau", "Blau2002","maria.blau.camarasa@estudiantat.upc.edu");
                 User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
                 User u3 = new User("David", "1234","emailDavid");
                 User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
@@ -157,19 +158,24 @@ public class UserService {
         }
     }
 
-    //PART USERS MANAGER
     @DELETE
     @ApiOperation(value = "delete a User", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
-            @ApiResponse(code = 404, message = "Track not found")
+            @ApiResponse(code = 404, message = "User not found")
     })
-    @Path("/{id}")
-    public Response deleteTrack(@PathParam("id") String id) {
-        User u = this.um.getUser(id);
-        if (u == null) return Response.status(404).build();
-        else this.um.deleteUser(id);
-        return Response.status(201).build();
+    @Path("/deleteUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUser(@CookieParam("authToken") String authToken) {
+        try{
+            User u =SessionManager.getInstance().getSession(authToken);
+            String id = this.um.getUserFromUsername(u.getName()).getId();
+            this.um.deleteUser(id);
+            SessionManager.getInstance().removeSession(authToken);
+            return Response.status(201).build();
+        } catch (Exception e) {
+            return Response.status(404).build();
+        }
     }
 
     @POST
@@ -184,7 +190,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(User user) {
 
-        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
+        if (user.getName()==null || user.getPassword()==null || user.getCorreo()==null)  return Response.status(500).entity(user).build();
         //user.setRandomId();
         try{
             this.um.addUser(user);
@@ -320,26 +326,33 @@ public class UserService {
     }
 
     @PUT
-    @ApiOperation(value = "User Has Forgoten Password", notes = "hello")
+    @ApiOperation(value = "User wants to change the password", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found")
+            @ApiResponse(code = 502, message = "Actual password incorrect"),
     })
-    @Path("/ChangePassword/{UserName}")
+    @Path("/ChangePassword")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserGetsMultiplicador(String password, @PathParam("UserName") String UserName) {
-        if(UserName == null|| password == null) return Response.status(500).build();
+    public Response UserChangePassword(ChangePassword passwords, @CookieParam("authToken") String authToken) {
         try{
-            User u = this.um.getUserFromUsername(UserName);
-            this.um.changePassword(u,password);
-            return Response.status(201).build();
+            User u =SessionManager.getInstance().getSession(authToken);
+            String pass = this.um.getUserFromUsername(u.getName()).getPassword();
+            if (pass.equals(passwords.getActualPassword())){
+                this.um.changePassword(u,passwords.getNewPassword());
+                return Response.status(201).build();
+            }
+            else {
+                return Response.status(502).build();
+            }
         }
-        catch(UserNotFoundException ex)
+        catch (Exception e)
         {
-            return Response.status(501).build();
+            return Response.status(500).build();
         }
+
     }
+
 
     @GET
     @ApiOperation(value = "Recover Password", notes = "hello")

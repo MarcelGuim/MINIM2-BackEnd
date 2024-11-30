@@ -41,16 +41,25 @@ public class UserManagerImpl implements UserManager {
 
     public User addUser(User u) throws UserRepeatedException {
         logger.info("new User " + u);
-        if(users.get(u.getName()) == null)
+        if(users.get(u.getName()) == null && !UserWithSameEmail(u.getCorreo()))
         {
             this.users.put(u.getName(),u);
             logger.info("new User added");
             return u;
         }
         else{
-            logger.warn("User already exists with that name");
+            logger.warn("User already exists with that name or email already in use");
             throw new UserRepeatedException();
         }
+    }
+
+    public boolean UserWithSameEmail(String correo) {
+        for (User user : users.values()) {
+            if (correo.equals(user.getCorreo())) { // Compara el correo buscado con el atributo
+                return true;
+            }
+        }
+        return false;
     }
 
     public User addUser(String user, String password,  String mail) throws UserRepeatedException{
@@ -108,10 +117,10 @@ public class UserManagerImpl implements UserManager {
         if (u==null) {
             logger.warn("not found " + u);
         }
-        else logger.info(u+" deleted ");
-
-        this.users.remove(u);
-
+        else {
+            logger.info(u+" deleted ");
+            this.users.remove(u.getName());
+        }
     }
     public void updateCobre(double cobre, User user){
         user.setCobre(cobre + user.getCobre());
@@ -157,7 +166,9 @@ public class UserManagerImpl implements UserManager {
     }
 
     public void changePassword(User user, String pswd){
-        user.setPassword(pswd);
+        User u = users.get(user.getName());
+        u.setPassword(pswd);
+        logger.info("User " + u + " Changed password");
     };
     public void RecoverPassword(User user) throws Exception{
         String host = "smtp.gmail.com";
