@@ -79,7 +79,7 @@ public class StoreManagerImpl implements StoreManager {
 
     };
 
-    public List<Item> BuyItemUser(String idItem, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException {
+    public List<Item> BuyItemUser(String idItem, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException, UserHasNoItemsException {
         User u = um.getUserFromUsername(nameUser);
         if (u==null) throw new UserNotFoundException();
         Item i = im.getItem(idItem);
@@ -89,7 +89,14 @@ public class StoreManagerImpl implements StoreManager {
             usersOfItems.get(idItem).add(u);
             u.setMoney(u.getMoney()-i.getCost());
             logger.info(u.getName()+" HA COMPRADO "+i.getName());
+            try{
+                return getItemsUserCanBuy(u);
+            } catch (UserHasNoItemsException e) {
+                throw new UserHasNoItemsException();
+            }
+
             //Ha de retornar una llista que exclogui els objectes que ja ha comprat
+            /*
             List<Item> userItems = itemsOfUsers.get(u.getName());
             if (userItems == null) {
                 userItems = new ArrayList<>();
@@ -101,6 +108,8 @@ public class StoreManagerImpl implements StoreManager {
                 }
             }
             return itemsNotBoughtByUser;
+
+             */
         }
         else throw new NotEnoughMoneyException();
     };
@@ -153,13 +162,24 @@ public class StoreManagerImpl implements StoreManager {
         items.clear();
     }
 
-    public List<Item> getItemsUserCanBuy(User u) throws NotEnoughMoneyException{
-        List<Item> itemsUserCanBuy = new ArrayList<>();
-        for(Item i:items){
-            if(i.getCost()<=u.getMoney()) itemsUserCanBuy.add(i);
+    public List<Item> getItemsUserCanBuy(User u) throws UserHasNoItemsException{
+        //Ha de retornar una llista que exclogui els objectes que ja ha comprat
+        List<Item> userItems = itemsOfUsers.get(u.getName());
+        if (userItems == null) {
+            userItems = new ArrayList<>();
         }
-        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-        return itemsUserCanBuy;
+        List<Item> itemsNotBoughtByUser = new ArrayList<>();
+        for (Item item : items) {
+            if (!userItems.contains(item)) {
+                itemsNotBoughtByUser.add(item);
+            }
+        }
+        if(itemsNotBoughtByUser.isEmpty()){
+            throw new UserHasNoItemsException();
+        }
+        else{
+            return itemsNotBoughtByUser;
+        }
     };
     public List<Character> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException{
         List<Character> charatersUserCanBuy = new ArrayList<>();

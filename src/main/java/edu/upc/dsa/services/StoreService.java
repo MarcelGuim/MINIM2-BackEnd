@@ -84,7 +84,8 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "Item Not Found"),
-            @ApiResponse(code = 503, message = "Not enough Money")
+            @ApiResponse(code = 503, message = "Not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more items to buy"),
 
     })
     @Path("/buyItem/{idItem}")
@@ -106,6 +107,9 @@ public class StoreService {
         }
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
+        }
+        catch (UserHasNoItemsException ex){
+            return Response.status(505).build();
         }
     }
 
@@ -222,24 +226,23 @@ public class StoreService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
-            @ApiResponse(code = 502, message = "User has not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more items to buy"),
     })
-    @Path("ItemsUserCanBuy/{NameUser}")
+    @Path("/ItemsUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItemssUserCanBuy(@PathParam("NameUser") String NameUser) {
-        if(NameUser == null) return Response.status(500).build();
+    public Response getItemssUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
-            User u = this.um.getUserFromUsername(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = this.sm.getItemsUserCanBuy(u);
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
+        catch(UserHasNoItemsException ex){
+            return Response.status(505).build();
         }
-        catch(NotEnoughMoneyException ex){
-            return Response.status(502).build();
+        catch (Exception e) {
+            return Response.status(500).build();
         }
+
     }
 }
