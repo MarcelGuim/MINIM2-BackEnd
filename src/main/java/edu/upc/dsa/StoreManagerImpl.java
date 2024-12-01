@@ -89,7 +89,18 @@ public class StoreManagerImpl implements StoreManager {
             usersOfItems.get(idItem).add(u);
             u.setMoney(u.getMoney()-i.getCost());
             logger.info(u.getName()+" HA COMPRADO "+i.getName());
-            return itemsOfUsers.get(u.getName());
+            //Ha de retornar una llista que exclogui els objectes que ja ha comprat
+            List<Item> userItems = itemsOfUsers.get(u.getName());
+            if (userItems == null) {
+                userItems = new ArrayList<>();
+            }
+            List<Item> itemsNotBoughtByUser = new ArrayList<>();
+            for (Item item : items) {
+                if (!userItems.contains(item)) {
+                    itemsNotBoughtByUser.add(item);
+                }
+            }
+            return itemsNotBoughtByUser;
         }
         else throw new NotEnoughMoneyException();
     };
