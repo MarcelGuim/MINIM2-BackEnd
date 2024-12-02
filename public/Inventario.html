@@ -83,16 +83,9 @@
 
   // Función para cargar los objetos del usuario
   async function loadUserItems() {
-    const username = localStorage.getItem('username'); // Obtener el nombre de usuario
-
-    if (!username) {
-      //alert('Por favor ingresa tu nombre de usuario.');
-      //return;
-    }
-
     try {
       // Realiza la solicitud GET para obtener los objetos del usuario
-      const response = await fetch(`${apiUrlStore}Items/${username}`);
+      const response = await fetch(`${apiUrlStore}myItems`);
 
       if (!response.ok) {
         throw new Error(`Error al obtener los objetos del usuario: ${response.statusText}`);

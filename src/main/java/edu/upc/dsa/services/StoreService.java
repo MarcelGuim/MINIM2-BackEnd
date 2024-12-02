@@ -121,13 +121,12 @@ public class StoreService {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has no Items"),
     })
-    @Path("Items/{NameUser}")
+    @Path("myItems")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUsers(@PathParam("NameUser") String NameUser) {
-        if(NameUser == null) return Response.status(500).build();
-
+    public Response getUsers(@CookieParam("authToken") String authToken) {
         try{
-            List<Item> items = this.sm.getItemUser(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
+            List<Item> items = this.sm.getItemUser(u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }
