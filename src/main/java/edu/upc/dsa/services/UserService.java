@@ -384,7 +384,7 @@ public class UserService {
     @GET
     @ApiOperation(value = "Get User Money", notes = "Retrieve the money of a user using authToken")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful", response = Integer.class),
+            @ApiResponse(code = 200, message = "Successful", response = MoneyResponse.class),
             @ApiResponse(code = 401, message = "Unauthorized - Session invalid"),
             @ApiResponse(code = 404, message = "User not found")
     })
@@ -396,22 +396,37 @@ public class UserService {
         }
 
         try {
-            // Obtener el usuario de la sesión usando el token de autenticación
             User user = SessionManager.getInstance().getSession(authToken);
 
             if (user == null) {
-                // Si la sesión no es válida o el usuario no está autenticado
                 return Response.status(401).entity("Invalid session").build();
             }
 
-            // Devolver el dinero del usuario
-            return Response.status(200).entity(user.getMoney()).build();
+            // Devuelve el dinero como un objeto MoneyResponse
+            MoneyResponse moneyResponse = new MoneyResponse(user.getMoney());
+
+            return Response.status(200).entity(moneyResponse).build();
         } catch (Exception ex) {
-            // Capturar cualquier error inesperado
             return Response.status(500).entity("An error occurred while retrieving user money").build();
         }
     }
 
+    // Clase para representar la respuesta del dinero
+    public class MoneyResponse {
+        private double money;
+
+        public MoneyResponse(double money) {
+            this.money = money;
+        }
+
+        public double getMoney() {
+            return money;
+        }
+
+        public void setMoney(double money) {
+            this.money = money;
+        }
+    }
 
 
     private String generateRandomSessionId() {
