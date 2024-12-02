@@ -229,26 +229,33 @@ public class UserService {
     }
 
     @POST
-    @ApiOperation(value = "Get stats of user", notes = "hello")
+    @ApiOperation(value = "Get stats of user", notes = "Retrieve user stats using authToken")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 201, message = "Successful", response = User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Validation Error")
-
+            @ApiResponse(code = 501, message = "User not found")
     })
-    @Path("/stats/{userName}")
+    @Path("/stats")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response GetStatsUser( @PathParam("userName") String userName) {
-        if (userName == null)  return Response.status(500).build();
-        try{
-            User u = this.um.getUserFromUsername(userName);
-            return Response.status(201).entity(u).build();
-
+    public Response GetStatsUser(@CookieParam("authToken") String authToken) {
+        if (authToken == null) {
+            return Response.status(500).build();
         }
-        catch (UserNotFoundException ex){
+        try {
+            // Validar el authToken y obtener el usuario asociado
+            User sessionUser = SessionManager.getInstance().getSession(authToken);
+            if (sessionUser == null) {
+                return Response.status(501).build();
+            }
+
+            // Obtener detalles del usuario a través del UserManager
+            User u = this.um.getUserFromUsername(sessionUser.getName());
+            return Response.status(201).entity(u).build();
+        } catch (UserNotFoundException ex) {
             return Response.status(501).build();
         }
     }
+
 
     @POST
     @ApiOperation(value = "User Gets Multiplicador", notes = "hello")
@@ -377,24 +384,6 @@ public class UserService {
         catch (Exception ex)
         {
             return Response.status(502).build();
-        }
-    }
-
-    @GET
-    @ApiOperation(value = "Get user money", notes = "Retrieves the money balance of a user")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful", response = Double.class),
-            @ApiResponse(code = 500, message = "Error")
-    })
-    @Path("/money")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserMoney(@CookieParam("authToken") String authToken) {
-        try {
-            User u = SessionManager.getInstance().getSession(authToken); // Obtiene el usuario desde la sesión
-            double money = u.getMoney(); // Obtiene el dinero del usuario
-            return Response.status(200).entity(money).build(); // Retorna el dinero en formato JSON
-        } catch (Exception e) {
-            return Response.status(500).build(); // Error al obtener el dinero
         }
     }
 

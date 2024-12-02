@@ -126,28 +126,40 @@
     async function loadMoney() {
       mostrarCargando(); // Mostrar el spinner antes de cargar el dinero
       try {
-        // Realiza la solicitud GET para obtener el dinero
-        const response = await fetch(`${apiUrlUser}money`, {
-          method: 'GET',
-          credentials: 'include' // Asegúrate de enviar las cookies si son necesarias
+        // Realiza la solicitud POST para obtener el dinero
+        const response = await fetch(`${apiUrlUser}stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include' // Esto incluye la cookie en la solicitud
         });
 
         if (!response.ok) {
-          throw new Error(`Error al obtener el dinero: ${response.statusText}`);
-        }
-
-        // Convierte la respuesta a JSON (en este caso, el dinero será un número)
-        const money = await response.json();
-
-        // Muestra el dinero en pantalla
-        document.getElementById('money-display').textContent = `Dinero disponible: $${money.toFixed(2)}`;
-          } catch (error) {
-            console.error('Error al cargar el dinero:', error);
-          } finally {
-            ocultarCargando(); // Ocultar el spinner después de cargar el dinero
+          if (response.status === 500) {
+            throw new Error('Error de validación: falta el token de autenticación.');
+          } else if (response.status === 501) {
+            throw new Error('Usuario no encontrado.');
+          } else {
+            throw new Error('Error al obtener el dinero del usuario.');
           }
         }
 
+        // Procesa la respuesta JSON
+        const userData = await response.json();
+
+        // Obtén el dinero del usuario desde los datos de respuesta
+        const money = userData.money;
+
+        // Muestra el dinero en pantalla
+        document.getElementById('money-display').textContent = `Dinero disponible: $${money.toFixed(2)}`;
+      } catch (error) {
+        console.error('Error al cargar el dinero:', error.message);
+        document.getElementById('money-display').textContent = `Error: ${error.message}`;
+      } finally {
+        ocultarCargando(); // Ocultar el spinner después de cargar el dinero
+      }
+    }
 
     // Función para cargar los objetos desde la API
     async function loadItems() {
