@@ -54,7 +54,7 @@ public class UserService {
                 this.sm.addAllItems(this.im.findAll());
                 User u1 = new User("Blau", "Blau2002","maria.blau.camarasa@estudiantat.upc.edu");
                 User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
-                User u3 = new User("David", "1234","emailDavid");
+                User u3 = new User("David", "1234","david.arenas.romero@estudiantat.upc.edu");
                 User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
                 u1.setMoney(10);
                 u2.setMoney(100);
@@ -380,6 +380,39 @@ public class UserService {
             return Response.status(502).build();
         }
     }
+
+    @GET
+    @ApiOperation(value = "Get User Money", notes = "Retrieve the money of a user using authToken")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful", response = Integer.class),
+            @ApiResponse(code = 401, message = "Unauthorized - Session invalid"),
+            @ApiResponse(code = 404, message = "User not found")
+    })
+    @Path("/money")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserMoney(@CookieParam("authToken") String authToken) {
+        if (authToken == null || authToken.isEmpty()) {
+            return Response.status(401).entity("Session token is required").build();
+        }
+
+        try {
+            // Obtener el usuario de la sesión usando el token de autenticación
+            User user = SessionManager.getInstance().getSession(authToken);
+
+            if (user == null) {
+                // Si la sesión no es válida o el usuario no está autenticado
+                return Response.status(401).entity("Invalid session").build();
+            }
+
+            // Devolver el dinero del usuario
+            return Response.status(200).entity(user.getMoney()).build();
+        } catch (Exception ex) {
+            // Capturar cualquier error inesperado
+            return Response.status(500).entity("An error occurred while retrieving user money").build();
+        }
+    }
+
+
 
     private String generateRandomSessionId() {
         return java.util.UUID.randomUUID().toString();  // Genera un UUID aleatorio como token de sesión

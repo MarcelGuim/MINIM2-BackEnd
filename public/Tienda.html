@@ -64,7 +64,9 @@
     <div class="mb-3">
       <h1>V1</h1>
     </div>
+    <div id="money-display">Dinero disponible: $0.00</div>
   </section>
+
 
   <section class="container mt-4">
     <table class="table table-bordered text-center">
@@ -98,12 +100,16 @@
     // URL del endpoint de la API
     const apiUrlItems = 'http://147.83.7.204/RobaCobres/items/';
     const apiUrlStore = 'http://147.83.7.204/RobaCobres/store/';
+    const apiUrlUser = 'http://147.83.7.204/RobaCobres/user/';
 
     //const apiUrlItems = 'http://localhost:8080/RobaCobres/items/';
     //const apiUrlStore = 'http://localhost:8080/RobaCobres/store/';
 
     // Referencia al tbody de la tabla
     const tableBody = document.querySelector('.table tbody');
+
+    // Constante para almacenar el dinero del usuario
+    let userMoney = 0;
 
     // Función para mostrar el spinner de carga
     function mostrarCargando() {
@@ -113,6 +119,37 @@
     // Función para ocultar el spinner de carga
     function ocultarCargando() {
       document.getElementById('loading').style.display = 'none';
+    }
+
+    // Función para cargar y mostrar el dinero del usuario
+    async function loadMoney() {
+        mostrarCargando(); // Mostrar el spinner antes de cargar el dinero
+        try {
+            // Realiza la solicitud GET
+            const response = await fetch(`${apiUrlUser}money`, {
+                method: 'GET',
+                credentials: 'include', // Asegura que las cookies se envíen con la solicitud
+            });
+
+            if (response.status === 200) {
+                const money = await response.json(); // Obtiene el dinero del usuario
+                userMoney = money; // Guarda el dinero en la constante
+
+                // Muestra el dinero en el elemento HTML con ID "money-display"
+                const moneyDisplay = document.getElementById('money-display');
+                if (moneyDisplay) {
+                    moneyDisplay.textContent = `Dinero disponible: $${money.toFixed(2)}`;
+                }
+            } else if (response.status === 500) {
+                console.error('Error del servidor al obtener el dinero del usuario.');
+            } else {
+                console.error(`Error desconocido: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error al cargar el dinero del usuario:', error);
+        } finally {
+            ocultarCargando(); // Ocultar el spinner después de cargar el dinero
+        }
     }
 
     // Función para cargar los objetos desde la API
@@ -164,6 +201,7 @@
         if (response.status === 201) {
           alert('¡Compra exitosa!');
           loadItems(); // Recargar los items después de la compra
+          loadMoney(); // Actualizar el dinero disponible después de la compra
         } else if (response.status === 500) {
           alert('Error de validación. Asegúrate de que los datos sean correctos.');
         } else if (response.status === 503) {
@@ -180,6 +218,7 @@
 
     // Cargar los objetos al cargar la página
     document.addEventListener('DOMContentLoaded', loadItems);
+    document.addEventListener('DOMContentLoaded', () => { loadMoney(); });
   </script>
 
 </body>
