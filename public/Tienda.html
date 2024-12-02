@@ -122,36 +122,31 @@
       document.getElementById('loading').style.display = 'none';
     }
 
-    // Función para cargar y mostrar el dinero del usuario
-async function loadMoney() {
-    mostrarCargando(); // Mostrar el spinner antes de cargar el dinero
-    try {
-        // Realiza la solicitud GET
+    // Función para cargar el dinero del usuario desde la API
+    async function loadMoney() {
+      mostrarCargando(); // Mostrar el spinner antes de cargar el dinero
+      try {
+        // Realiza la solicitud GET para obtener el dinero
         const response = await fetch(`${apiUrlUser}money`, {
-            method: 'GET',
-            credentials: 'include', // Asegura que las cookies se envíen con la solicitud
+          method: 'GET',
+          credentials: 'include' // Asegúrate de enviar las cookies si son necesarias
         });
 
-        if (response.status === 200) {
-            const moneyResponse = await response.json(); // Obtiene la respuesta con el dinero
-            const money = moneyResponse.money; // Accede al valor del dinero
-
-            // Muestra el dinero en el elemento HTML con ID "money-display"
-            const moneyDisplay = document.getElementById('money-display');
-            if (moneyDisplay) {
-                moneyDisplay.textContent = `Dinero disponible: $${money.toFixed(2)}`;
-            }
-        } else if (response.status === 500) {
-            console.error('Error del servidor al obtener el dinero del usuario.');
-        } else {
-            console.error(`Error desconocido: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Error al obtener el dinero: ${response.statusText}`);
         }
-    } catch (error) {
-        console.error('Error al cargar el dinero del usuario:', error);
-    } finally {
-        ocultarCargando(); // Ocultar el spinner después de cargar el dinero
-    }
-}
+
+        // Convierte la respuesta a JSON (en este caso, el dinero será un número)
+        const money = await response.json();
+
+        // Muestra el dinero en pantalla
+        document.getElementById('money-display').textContent = `Dinero disponible: $${money.toFixed(2)}`;
+          } catch (error) {
+            console.error('Error al cargar el dinero:', error);
+          } finally {
+            ocultarCargando(); // Ocultar el spinner después de cargar el dinero
+          }
+        }
 
 
     // Función para cargar los objetos desde la API
@@ -219,8 +214,11 @@ async function loadMoney() {
     }
 
     // Cargar los objetos al cargar la página
-    document.addEventListener('DOMContentLoaded', loadItems);
-    document.addEventListener('DOMContentLoaded', () => { loadMoney(); });
+    document.addEventListener('DOMContentLoaded', () => {
+    loadItems();  // Llamar a loadItems
+    loadMoney();  // Llamar a loadMoney
+    });
+
   </script>
 
 </body>

@@ -353,7 +353,6 @@ public class UserService {
 
     }
 
-
     @GET
     @ApiOperation(value = "Recover Password", notes = "hello")
     @ApiResponses(value = {
@@ -382,52 +381,22 @@ public class UserService {
     }
 
     @GET
-    @ApiOperation(value = "Get User Money", notes = "Retrieve the money of a user using authToken")
+    @ApiOperation(value = "Get user money", notes = "Retrieves the money balance of a user")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful", response = MoneyResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorized - Session invalid"),
-            @ApiResponse(code = 404, message = "User not found")
+            @ApiResponse(code = 200, message = "Successful", response = Double.class),
+            @ApiResponse(code = 500, message = "Error")
     })
     @Path("/money")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserMoney(@CookieParam("authToken") String authToken) {
-        if (authToken == null || authToken.isEmpty()) {
-            return Response.status(401).entity("Session token is required").build();
-        }
-
         try {
-            User user = SessionManager.getInstance().getSession(authToken);
-
-            if (user == null) {
-                return Response.status(401).entity("Invalid session").build();
-            }
-
-            // Devuelve el dinero como un objeto MoneyResponse
-            MoneyResponse moneyResponse = new MoneyResponse(user.getMoney());
-
-            return Response.status(200).entity(moneyResponse).build();
-        } catch (Exception ex) {
-            return Response.status(500).entity("An error occurred while retrieving user money").build();
+            User u = SessionManager.getInstance().getSession(authToken); // Obtiene el usuario desde la sesión
+            double money = u.getMoney(); // Obtiene el dinero del usuario
+            return Response.status(200).entity(money).build(); // Retorna el dinero en formato JSON
+        } catch (Exception e) {
+            return Response.status(500).build(); // Error al obtener el dinero
         }
     }
-
-    // Clase para representar la respuesta del dinero
-    public class MoneyResponse {
-        private double money;
-
-        public MoneyResponse(double money) {
-            this.money = money;
-        }
-
-        public double getMoney() {
-            return money;
-        }
-
-        public void setMoney(double money) {
-            this.money = money;
-        }
-    }
-
 
     private String generateRandomSessionId() {
         return java.util.UUID.randomUUID().toString();  // Genera un UUID aleatorio como token de sesión

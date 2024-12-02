@@ -229,7 +229,7 @@ public class StoreService {
     })
     @Path("/ItemsUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItemssUserCanBuy(@CookieParam("authToken") String authToken) {
+    public Response getItemsUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
             User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = this.sm.getItemsUserCanBuy(u);
