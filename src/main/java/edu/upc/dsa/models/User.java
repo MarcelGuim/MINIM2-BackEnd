@@ -19,10 +19,6 @@ public class User {
         this.setCorreo(correo);
     }
 
-    public void setRandomId(){
-
-    }
-
     public String getName() {
         return name;
     }

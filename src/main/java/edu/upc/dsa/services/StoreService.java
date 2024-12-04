@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import javax.naming.Name;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
@@ -84,7 +85,8 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "Item Not Found"),
-            @ApiResponse(code = 503, message = "Not enough Money")
+            @ApiResponse(code = 503, message = "Not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more items to buy"),
 
     })
     @Path("/buyItem/{idItem}")
@@ -92,7 +94,7 @@ public class StoreService {
     public Response UserBuys( @PathParam("idItem") String idItem,@CookieParam("authToken") String authToken) {
         if(idItem == null) return Response.status(500).build();
         try{
-            User u= sesm.getSession(authToken);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = sm.BuyItemUser(idItem,u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
@@ -107,6 +109,9 @@ public class StoreService {
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
         }
+        catch (UserHasNoItemsException ex){
+            return Response.status(505).build();
+        }
     }
 
     @GET
@@ -117,13 +122,12 @@ public class StoreService {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has no Items"),
     })
-    @Path("Items/{NameUser}")
+    @Path("myItems")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUsers(@PathParam("NameUser") String NameUser) {
-        if(NameUser == null) return Response.status(500).build();
-
+    public Response getUsers(@CookieParam("authToken") String authToken) {
         try{
-            List<Item> items = this.sm.getItemUser(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
+            List<Item> items = this.sm.getItemUser(u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }
@@ -222,24 +226,23 @@ public class StoreService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
-            @ApiResponse(code = 502, message = "User has not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more items to buy"),
     })
-    @Path("ItemsUserCanBuy/{NameUser}")
+    @Path("/ItemsUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItemssUserCanBuy(@PathParam("NameUser") String NameUser) {
-        if(NameUser == null) return Response.status(500).build();
+    public Response getItemsUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
-            User u = this.um.getUserFromUsername(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = this.sm.getItemsUserCanBuy(u);
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
+        catch(UserHasNoItemsException ex){
+            return Response.status(505).build();
         }
-        catch(NotEnoughMoneyException ex){
-            return Response.status(502).build();
+        catch (Exception e) {
+            return Response.status(500).build();
         }
+
     }
 }

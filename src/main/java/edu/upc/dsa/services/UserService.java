@@ -1,6 +1,7 @@
 package edu.upc.dsa.services;
 import edu.upc.dsa.*;
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChangePassword;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -51,9 +52,9 @@ public class UserService {
                 this.im.addItem(item3);
                 this.im.addItem(item4);
                 this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002","emailBlau");
+                User u1 = new User("Blau", "Blau2002","maria.blau.camarasa@estudiantat.upc.edu");
                 User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
-                User u3 = new User("David", "1234","emailDavid");
+                User u3 = new User("David", "1234","david.arenas.romero@estudiantat.upc.edu");
                 User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
                 u1.setMoney(10);
                 u2.setMoney(100);
@@ -167,13 +168,16 @@ public class UserService {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 404, message = "User not found")
     })
-    @Path("/{userName}")
-    public Response deleteUser(@PathParam("userName") String userName) {
-        try{;
-            this.um.deleteUser(userName);
+    @Path("/deleteUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUser(@CookieParam("authToken") String authToken) {
+        try{
+            User u =SessionManager.getInstance().getSession(authToken);
+            String id = this.um.getUserFromUsername(u.getName()).getId();
+            this.um.deleteUser(id);
+            SessionManager.getInstance().removeSession(authToken);
             return Response.status(201).build();
-        }
-        catch(UserNotFoundException ex){
+        } catch (Exception e) {
             return Response.status(404).build();
         }
     }
@@ -190,7 +194,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(User user) {
 
-        if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
+        if (user.getName()==null || user.getPassword()==null || user.getCorreo()==null)  return Response.status(500).entity(user).build();
         //user.setRandomId();
         try{
             this.um.addUser(user);
@@ -233,26 +237,33 @@ public class UserService {
     }
 
     @POST
-    @ApiOperation(value = "Get stats of user", notes = "hello")
+    @ApiOperation(value = "Get stats of user", notes = "Retrieve user stats using authToken")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 201, message = "Successful", response = User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Validation Error")
-
+            @ApiResponse(code = 501, message = "User not found")
     })
-    @Path("/stats/{userName}")
+    @Path("/stats")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response GetStatsUser( @PathParam("userName") String userName) {
-        if (userName == null)  return Response.status(500).build();
-        try{
-            User u = this.um.getUserFromUsername(userName);
-            return Response.status(201).entity(u).build();
-
+    public Response GetStatsUser(@CookieParam("authToken") String authToken) {
+        if (authToken == null) {
+            return Response.status(500).build();
         }
-        catch (UserNotFoundException ex){
+        try {
+            // Validar el authToken y obtener el usuario asociado
+            User sessionUser = SessionManager.getInstance().getSession(authToken);
+            if (sessionUser == null) {
+                return Response.status(501).build();
+            }
+
+            // Obtener detalles del usuario a través del UserManager
+            User u = this.um.getUserFromUsername(sessionUser.getName());
+            return Response.status(201).entity(u).build();
+        } catch (UserNotFoundException ex) {
             return Response.status(501).build();
         }
     }
+
 
     @POST
     @ApiOperation(value = "User Gets Multiplicador", notes = "hello")
@@ -330,25 +341,31 @@ public class UserService {
     }
 
     @PUT
-    @ApiOperation(value = "User Has Forgoten Password", notes = "hello")
+    @ApiOperation(value = "User wants to change the password", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found")
+            @ApiResponse(code = 502, message = "Actual password incorrect"),
     })
-    @Path("/ChangePassword/{UserName}")
+    @Path("/ChangePassword")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserGetsMultiplicador(String password, @PathParam("UserName") String UserName) {
-        if(UserName == null|| password == null) return Response.status(500).build();
+    public Response UserChangePassword(ChangePassword passwords, @CookieParam("authToken") String authToken) {
         try{
-            User u = this.um.getUserFromUsername(UserName);
-            this.um.changePassword(u,password);
-            return Response.status(201).build();
+            User u =SessionManager.getInstance().getSession(authToken);
+            String pass = this.um.getUserFromUsername(u.getName()).getPassword();
+            if (pass.equals(passwords.getActualPassword())){
+                this.um.changePassword(u,passwords.getNewPassword());
+                return Response.status(201).build();
+            }
+            else {
+                return Response.status(502).build();
+            }
         }
-        catch(UserNotFoundException ex)
+        catch (Exception e)
         {
-            return Response.status(501).build();
+            return Response.status(500).build();
         }
+
     }
 
     @GET
