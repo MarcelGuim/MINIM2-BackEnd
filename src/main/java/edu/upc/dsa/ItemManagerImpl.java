@@ -38,32 +38,22 @@ public class ItemManagerImpl implements ItemManager {
         return i;
     }
 
-    public Item addItem(String name){
-        return this.addItem(null,name);
+    public Item addItem(String name,String url) {
+        return this.addItem(new Item(name,url));
     }
 
-    public Item addItem(String id, String name) {
-        return this.addItem(new Item(id, name));
-    }
-
-    public Item getItem(String id) {
-        logger.info("getItem("+id+")");
+    public Item getItem(String Name)throws ItemNotFoundException {
+        logger.info("getItem("+Name+")");
 
         for (Item i: this.items) {
-            if (i.getId().equals(id)) {
-                logger.info("getItem("+id+"): "+i);
+            if (i.getName().equals(Name)) {
+                logger.info("getItem("+Name+"): "+i);
 
                 return i;
             }
         }
-        logger.warn("not found " + id);
-        return null;
-    }
-
-    public Item getItem2(String id) throws ItemNotFoundException {
-        Item i = getItem(id);
-        if (i == null) throw new ItemNotFoundException();
-        return i;
+        logger.warn("not found " + Name);
+        throw new ItemNotFoundException();
     }
 
 
@@ -72,21 +62,20 @@ public class ItemManagerImpl implements ItemManager {
     }
 
     @Override
-    public void deleteItem(String id) {
+    public void deleteItem(String Name) throws ItemNotFoundException {
 
-        Item i = this.getItem(id);
+        Item i = this.getItem(Name);
         if (i==null) {
             logger.warn("not found " + i);
         }
         else logger.info(i+" deleted ");
 
         this.items.remove(i);
-
     }
 
     @Override
-    public Item updateItem(Item i) {
-        Item t = this.getItem(i.getId());
+    public Item updateItem(Item i)  throws ItemNotFoundException {
+        Item t = this.getItem(i.getName());
 
         if (t!=null) {
             logger.info(i+" rebut!!!! ");

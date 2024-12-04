@@ -1,19 +1,16 @@
 package edu.upc.dsa;
 
-import edu.upc.dsa.exceptions.CharacterNotFoundException;
-import edu.upc.dsa.models.Character;
-import edu.upc.dsa.models.Item;
-import org.apache.log4j.Logger;
+import edu.upc.dsa.models.GameCharacter;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class CharacterManagerImpl implements CharacterManager {
     private static CharacterManager instance;
-    protected List<Character> characters;
+    protected List<GameCharacter> gameCharacters;
 
     private CharacterManagerImpl() {
-        this.characters = new LinkedList<>();
+        this.gameCharacters = new LinkedList<>();
     }
 
     public static CharacterManager getInstance() {
@@ -21,17 +18,17 @@ public class CharacterManagerImpl implements CharacterManager {
         return instance;
     }
 
-    public List<Character> getAllCharacters(){
-      return characters;
+    public List<GameCharacter> getAllCharacters(){
+      return gameCharacters;
     };
-    public Character addCharacter(int stealth, int speed, int strength, String name, double cost){
-        Character character1 = new Character(stealth, speed, strength, name, cost);
-        this.characters.add(character1);
-        return character1;
+    public GameCharacter addCharacter(int stealth, int speed, int strength, String name, double cost){
+        GameCharacter gameCharacter1 = new GameCharacter(stealth, speed, strength, name, cost);
+        this.gameCharacters.add(gameCharacter1);
+        return gameCharacter1;
     };
 
-    public Character getCharacter(String name){
-        for (Character c: characters)
+    public GameCharacter getCharacter(String name){
+        for (GameCharacter c: gameCharacters)
             if(c.getName().equals(name))
                 return c;
         return null;
@@ -39,13 +36,13 @@ public class CharacterManagerImpl implements CharacterManager {
 
 
     public void clear(){
-        this.characters.clear();
+        this.gameCharacters.clear();
     };
     public int size(){
-      return this.characters.size();
+      return this.gameCharacters.size();
     };
 
-    public List<Character> findAll(){
-        return characters;
+    public List<GameCharacter> findAll(){
+        return gameCharacters;
     }
 }

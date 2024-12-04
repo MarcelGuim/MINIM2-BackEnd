@@ -15,66 +15,20 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/store", description = "Endpoint to Store Service")
-@Path("/store")
-public class StoreService {
+@Api(value = "/storeBD", description = "Endpoint to Store Service with Data Base")
+@Path("/storeBD")
+public class StoreServiceBBDD {
     private ItemManager im;
     private StoreManager sm;
     private UserManager um;
     private CharacterManager cm;
     private SessionManager sesm;
-    public StoreService() {
-        this.im = ItemManagerImpl.getInstance();
-        this.sm = StoreManagerImpl.getInstance();
-        this.um = UserManagerImpl.getInstance();
-        this.cm = CharacterManagerImpl.getInstance();
+    public StoreServiceBBDD() {
+        this.im = new ItemManagerImplBBDD();
+        this.sm = StoreManagerImplBBDD.getInstance();
+        this.um = UserManagerImplBBDD.getInstance();
+        this.cm = CharacterManagerImplBBDD.getInstance();
         this.sesm = SessionManager.getInstance();
-        if (im.size()==0) {
-            this.im = ItemManagerImpl.getInstance();
-            this.sm = StoreManagerImpl.getInstance();
-            this.um = UserManagerImpl.getInstance();
-            this.cm = CharacterManagerImpl.getInstance();
-            if (im.size() == 0) {
-                Item item1 = new Item("Cizalla","http://10.0.2.2:8080/itemsIcons/cizalla.png");
-                Item item2 = new Item("Sierra Electrica","http://10.0.2.2:8080/itemsIcons/sierraelec.png");
-                Item item3 = new Item("PelaCables2000","http://10.0.2.2:8080/itemsIcons/pelacables.png");
-                Item item4 = new Item("Sierra","http://10.0.2.2:8080/itemsIcons/sierra.png");
-                item1.setCost(5);
-                item2.setCost(50);
-                item3.setCost(500);
-                item4.setCost(2000);
-                this.im.addItem(item1);
-                this.im.addItem(item2);
-                this.im.addItem(item3);
-                this.im.addItem(item4);
-                this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002","emailBlau");
-                User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
-                User u3 = new User("David", "1234","emailDavid");
-                User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
-                u1.setMoney(10);
-                u2.setMoney(100);
-                u3.setMoney(1000);
-                u4.setMoney(5000);
-                try{
-                    this.um.addUser(u1);
-                    this.um.addUser(u2);
-                    this.um.addUser(u3);
-                    this.um.addUser(u4);
-                    this.sm.addAllUsers(this.um.findAll());
-                    this.cm.addCharacter(1,1,1,"primer",10);
-                    this.cm.addCharacter(1,1,1,"segon",60);
-                    this.cm.addCharacter(1,1,1,"tercer",50);
-                    this.sm.addAllCharacters(this.cm.findAll());
-                }
-                catch(UserRepeatedException ex){
-
-                }
-                catch(ItemRepeatedException ex){
-
-                }
-            }
-        }
     }
 
     @POST
@@ -87,13 +41,13 @@ public class StoreService {
             @ApiResponse(code = 503, message = "Not enough Money")
 
     })
-    @Path("/buyItem/{idItem}")
+    @Path("/buyItem/{itemName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserBuys( @PathParam("idItem") String idItem,@CookieParam("authToken") String authToken) {
-        if(idItem == null) return Response.status(500).build();
+    public Response UserBuys( @PathParam("itemName") String itemName,@CookieParam("authToken") String authToken) {
+        if(itemName == null) return Response.status(500).build();
         try{
             User u= sesm.getSession(authToken);
-            List<Item> items = sm.BuyItemUser(idItem,u.getName());
+            List<Item> items = sm.BuyItemUser(itemName,u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }

@@ -1,6 +1,10 @@
 package edu.upc.dsa.services;
+
 import edu.upc.dsa.*;
-import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.exceptions.UserHasNoCobreException;
+import edu.upc.dsa.exceptions.UserHasNoMultiplicadorException;
+import edu.upc.dsa.exceptions.UserNotFoundException;
+import edu.upc.dsa.exceptions.UserRepeatedException;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -17,67 +21,19 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/users", description = "Endpoint to Users Service")
-@Path("/users")
-public class UserService {
+@Api(value = "/usersBD", description = "Endpoint to Users Service with Data Base")
+@Path("/usersBD")
+public class UserServiceBBDD {
     //test
     private ItemManager im;
     private StoreManager sm;
     private UserManager um;
     private CharacterManager cm;
-    SessionBD sessionBD;
-    public UserService() {
-        sessionBD = FactorySession.openSession(); //url, user, password);
-        this.im = ItemManagerImpl.getInstance();
-        this.sm = StoreManagerImpl.getInstance();
-        this.um = UserManagerImpl.getInstance();
-        this.cm = CharacterManagerImpl.getInstance();
-        if (im.size()==0) {
-            this.im = ItemManagerImpl.getInstance();
-            this.sm = StoreManagerImpl.getInstance();
-            this.um = UserManagerImpl.getInstance();
-            this.cm = CharacterManagerImpl.getInstance();
-            if (im.size() == 0) {
-                Item item1 = new Item("Cizalla","http://10.0.2.2:8080/itemsIcons/cizalla.png");
-                Item item2 = new Item("Sierra Electrica","http://10.0.2.2:8080/itemsIcons/sierraelec.png");
-                Item item3 = new Item("PelaCables2000","http://10.0.2.2:8080/itemsIcons/pelacables.png");
-                Item item4 = new Item("Sierra","http://10.0.2.2:8080/itemsIcons/sierra.png");
-                item1.setCost(5);
-                item2.setCost(50);
-                item3.setCost(500);
-                item4.setCost(2000);
-                this.im.addItem(item1);
-                this.im.addItem(item2);
-                this.im.addItem(item3);
-                this.im.addItem(item4);
-                this.sm.addAllItems(this.im.findAll());
-                User u1 = new User("Blau", "Blau2002","emailBlau");
-                User u2 = new User("Lluc", "Falco12","joan.lluc.fernandez@estudiantat.upc.edu");
-                User u3 = new User("David", "1234","emailDavid");
-                User u4 = new User("Marcel", "1234","marcel.guim@estudiantat.upc.edu");
-                u1.setMoney(10);
-                u2.setMoney(100);
-                u3.setMoney(1000);
-                u4.setMoney(5000);
-                try{
-                    this.um.addUser(u1);
-                    this.um.addUser(u2);
-                    this.um.addUser(u3);
-                    this.um.addUser(u4);
-                    this.sm.addAllUsers(this.um.findAll());
-                    this.cm.addCharacter(1,1,1,"primer",10);
-                    this.cm.addCharacter(1,1,1,"segon",60);
-                    this.cm.addCharacter(1,1,1,"tercer",50);
-                    this.sm.addAllCharacters(this.cm.findAll());
-                }
-                catch(UserRepeatedException ex){
-
-                }
-                catch(ItemRepeatedException ex){
-
-                }
-            }
-        }
+    public UserServiceBBDD() {
+        this.im = new ItemManagerImplBBDD();
+        this.sm = StoreManagerImplBBDD.getInstance();
+        this.um = UserManagerImplBBDD.getInstance();
+        this.cm = CharacterManagerImplBBDD.getInstance();
     }
 
     //PART AUTENT
@@ -330,7 +286,7 @@ public class UserService {
     }
 
     @PUT
-    @ApiOperation(value = "User Has Forgoten Password", notes = "hello")
+    @ApiOperation(value = "User Wants to change password", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 500, message = "Error"),
@@ -338,7 +294,7 @@ public class UserService {
     })
     @Path("/ChangePassword/{UserName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserGetsMultiplicador(String password, @PathParam("UserName") String UserName) {
+    public Response UserChangesPassword(String password, @PathParam("UserName") String UserName) {
         if(UserName == null|| password == null) return Response.status(500).build();
         try{
             User u = this.um.getUserFromUsername(UserName);

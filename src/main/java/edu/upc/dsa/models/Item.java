@@ -3,24 +3,18 @@ package edu.upc.dsa.models;
 import edu.upc.dsa.util.RandomUtils;
 
 public class Item {
-
-    String id;
     String name;
     double cost;
+    int velocidad;
+    int forca;
     String item_url;
-    static int lastId;
 
-    public Item() {
-        this.setId(RandomUtils.getId());
-    }
-    public Item(String name) {
-        this(null, name);
-    }
+    public Item() {}
 
-    public Item(String id, String name) {
+    public Item(String name, String url) {
         this();
-        if (id != null) this.setId(id);
         this.setName(name);
+        this.setItem_url(url);
     }
 
     public String getItem_url() {
@@ -31,28 +25,12 @@ public class Item {
         this.item_url = item_url;
     }
 
-    public static int getLastId() {
-        return lastId;
-    }
-
-    public static void setLastId(int lastId) {
-        Item.lastId = lastId;
-    }
-
     public double getCost() {
         return cost;
     }
 
     public void setCost(double cost) {
         this.cost = cost;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id=id;
     }
 
     public String getName() {
@@ -63,9 +41,25 @@ public class Item {
         this.name = name;
     }
 
+    public int getVelocidad() {
+        return velocidad;
+    }
+
+    public void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+
+    public int getForca() {
+        return forca;
+    }
+
+    public void setForca(int forca) {
+        this.forca = forca;
+    }
+
     @Override
     public String toString() {
-        return "Item [id="+id+", name=" + name +"url: "+item_url+"]";
+        return "Item [name=" + name +"url: "+item_url+"]";
     }
 
 }

@@ -7,20 +7,30 @@ import java.util.List;
 
 public interface UserManager {
 
-    public User addUser(String id, String user, String password,  String mail) throws UserRepeatedException;
     public User addUser(String user, String password, String mail) throws UserRepeatedException;
+    //Implementada
     public User addUser(User u) throws UserRepeatedException;
-    public User getUser(String id);
-    public User getUser2(String id) throws UserNotFoundException;
+    //Implementada
     public User getUserFromUsername(String _username) throws  UserNotFoundException;
+    //Implementada
     public List<User> findAll();
-    public void deleteUser(String id);
-    public User updateUser(User u);
-    public void updateCobre(double cobre, User user);
+    //Implementada
+    public void deleteUser(String userName) throws UserNotFoundException;
+    //Implementada
+    public User updateUser(User u)throws UserNotFoundException;
+    //Implementada
+    public void updateCobre(double cobre, User user)throws UserNotFoundException;
+    //Implementada
     public double updateMoney(User user) throws UserHasNoCobreException, UserHasNoMultiplicadorException;
+    //Implementada
     public double damePrecioCobre(User user);
+    //Implementada (No fa res a la BD)
     public void clear();
+    //Implementada
     public int size();
+    //Implementada
     public void changePassword(User user, String pswd);
+    //Implementada
     public void RecoverPassword(User user) throws Exception;
+    //Implementada
 }

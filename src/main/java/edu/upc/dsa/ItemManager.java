@@ -7,16 +7,20 @@ import java.util.List;
 
 public interface ItemManager {
 
-    public Item addItem(String id, String name);
-    public Item addItem(String name);
+    public Item addItem(String name, String url);
+    //Funciona
     public Item addItem(Item i);
-    public Item getItem(String id);
-    public Item getItem2(String id) throws ItemNotFoundException;
-
+    //Funciona però falta retornar Exception
+    public Item getItem(String name) throws ItemNotFoundException;
+    //Funciona
     public List<Item> findAll();
-    public void deleteItem(String id);
-    public Item updateItem(Item i);
-
+    //Funciona
+    public void deleteItem(String name) throws ItemNotFoundException;
+    //Funciona
+    public Item updateItem(Item i) throws ItemNotFoundException;
+    //Funciona
     public void clear();
+    //Funciona
     public int size();
+    //Funciona
 }
