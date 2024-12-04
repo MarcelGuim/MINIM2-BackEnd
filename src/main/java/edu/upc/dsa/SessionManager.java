@@ -1,5 +1,6 @@
 package edu.upc.dsa;
 
+import edu.upc.dsa.exceptions.UserNotLoggedInException;
 import edu.upc.dsa.models.User;
 import org.apache.log4j.Logger;
 
@@ -36,12 +37,19 @@ public class SessionManager {
         activeSessions.put(sessionId, user);
     }
 
-    public User getSession(String sessionId) {
-        return activeSessions.get(sessionId);
+    public User getSession(String sessionId) throws UserNotLoggedInException {
+        User u = activeSessions.get(sessionId);
+        if (u==null)throw new UserNotLoggedInException();
+        else return u;
     }
 
     public void removeSession(String sessionId) {
-        logger.info("Cookie de "+ this.getSession(sessionId).getName()+": "+sessionId+ " ,borrada");
+        try{
+            logger.info("Cookie de "+ this.getSession(sessionId).getName()+": "+sessionId+ " ,borrada");
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged");
+        }
         activeSessions.remove(sessionId);
     }
 }

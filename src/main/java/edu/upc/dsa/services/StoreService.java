@@ -8,6 +8,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.log4j.Logger;
+import org.reflections.Store;
 
 import javax.naming.Name;
 import javax.ws.rs.*;
@@ -24,6 +26,7 @@ public class StoreService {
     private UserManager um;
     private CharacterManager cm;
     private SessionManager sesm;
+    final static Logger logger = Logger.getLogger(StoreService.class);
     public StoreService() {
         this.im = ItemManagerImpl.getInstance();
         this.sm = StoreManagerImpl.getInstance();
@@ -87,7 +90,7 @@ public class StoreService {
             @ApiResponse(code = 502, message = "Item Not Found"),
             @ApiResponse(code = 503, message = "Not enough Money"),
             @ApiResponse(code = 505, message = "User has no more items to buy"),
-
+            @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("/buyItem/{idItem}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -109,6 +112,10 @@ public class StoreService {
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
     }
 
     @GET
@@ -118,6 +125,8 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has no Items"),
+            @ApiResponse(code = 503, message = "User not yet logged in"),
+            @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("myItems")
     @Produces(MediaType.APPLICATION_JSON)
@@ -134,6 +143,10 @@ public class StoreService {
         catch(UserHasNoItemsException ex){
             return Response.status(502).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not yet logged in");
+            return Response.status(503).build();
+        }
     }
     @POST
     @ApiOperation(value = "User buys an Character", notes = "hello")
@@ -142,14 +155,15 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "Character Not Found"),
-            @ApiResponse(code = 503, message = "Not enough Money")
-
+            @ApiResponse(code = 503, message = "Not enough Money"),
+            @ApiResponse(code = 506, message = "User not logged in yet")
     })
     @Path("/buyCharacters/{NameUser}/{CharacterName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserBuysCharcter(@PathParam("NameUser") String NameUser, @PathParam("CharacterName") String CharacterName) {
+    public Response UserBuysCharcter(@PathParam("NameUser") String NameUser, @PathParam("CharacterName") String CharacterName, @CookieParam("authToken") String authToken) {
         if(NameUser == null || CharacterName == null) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             List<GameCharacter> gameCharacters = sm.BuyCharacter(NameUser,CharacterName);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
@@ -164,6 +178,10 @@ public class StoreService {
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
     }
 
     @GET
@@ -173,13 +191,14 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has no Characters"),
+            @ApiResponse(code = 506, message = "User not logged in yet")
     })
     @Path("Characters/{NameUser}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCharacters(@PathParam("NameUser") String NameUser) {
+    public Response getCharacters(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
         if(NameUser == null) return Response.status(500).build();
-
         try{
+            this.sesm.getSession(authToken);
             List<GameCharacter> gameCharacters = this.sm.getCharacterUser(NameUser);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
@@ -190,6 +209,10 @@ public class StoreService {
         catch(UserHasNoCharacterException ex){
             return Response.status(502).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
     }
 
     @GET
@@ -199,12 +222,14 @@ public class StoreService {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has not enough Money"),
+            @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("CharactersUserCanBuy/{NameUser}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCharactersUserCanBuy(@PathParam("NameUser") String NameUser) {
+    public Response getCharactersUserCanBuy(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
         if(NameUser == null) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(NameUser);
             List<GameCharacter> gameCharacters = this.sm.getCharacterUserCanBuy(u);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
@@ -216,6 +241,10 @@ public class StoreService {
         catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
     }
 
     @GET
@@ -224,11 +253,13 @@ public class StoreService {
             @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 505, message = "User has no more items to buy"),
+            @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("/ItemsUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getItemsUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
+            this.sesm.getSession(authToken);
             User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = this.sm.getItemsUserCanBuy(u);
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
@@ -237,9 +268,12 @@ public class StoreService {
         catch(UserHasNoItemsException ex){
             return Response.status(505).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
         catch (Exception e) {
             return Response.status(500).build();
         }
-
     }
 }

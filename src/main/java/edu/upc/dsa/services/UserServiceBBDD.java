@@ -1,10 +1,7 @@
 package edu.upc.dsa.services;
 
 import edu.upc.dsa.*;
-import edu.upc.dsa.exceptions.UserHasNoCobreException;
-import edu.upc.dsa.exceptions.UserHasNoMultiplicadorException;
-import edu.upc.dsa.exceptions.UserNotFoundException;
-import edu.upc.dsa.exceptions.UserRepeatedException;
+import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -13,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
@@ -29,11 +27,14 @@ public class UserServiceBBDD {
     private StoreManager sm;
     private UserManager um;
     private CharacterManager cm;
+    private SessionManager sesm;
+    final static Logger logger = Logger.getLogger(UserService.class);
     public UserServiceBBDD() {
         this.im = new ItemManagerImplBBDD();
         this.sm = StoreManagerImplBBDD.getInstance();
         this.um = UserManagerImplBBDD.getInstance();
         this.cm = CharacterManagerImplBBDD.getInstance();
+        this.sesm = SessionManager.getInstance();
     }
 
     //PART AUTENT
@@ -88,31 +89,41 @@ public class UserServiceBBDD {
     @ApiOperation(value = "Check Session Validity", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "AUTHORIZED"),
-            @ApiResponse(code = 501, message = "UNAUTHORIZED")
+            @ApiResponse(code = 501, message = "UNAUTHORIZED"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/sessionCheck")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSession(@CookieParam("authToken") String authToken) {
-        if (SessionManager.getInstance().getSession(authToken)==null)
-            return Response.status(501).build() ;
-        else
-            return Response.status(201).build();
+        try{
+            if (sesm.getSession(authToken)==null)
+                return Response.status(501).build() ;
+            else
+                return Response.status(201).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
+        }
     }
 
     @GET
     @ApiOperation(value = "LogOut", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "OK"),
-            @ApiResponse(code = 501, message = "UNAUTHORIZED")
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
     })
     @Path("/sessionOut")
     @Produces(MediaType.APPLICATION_JSON)
     public Response quitSession(@CookieParam("authToken") String authToken) {
-        if (SessionManager.getInstance().getSession(authToken)==null)
-            return Response.status(501).build() ;
-        else{
+        try{
+            sesm.getSession(authToken);
             SessionManager.getInstance().removeSession(authToken);
             return Response.status(201).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
@@ -121,16 +132,23 @@ public class UserServiceBBDD {
     @ApiOperation(value = "delete a User", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
-            @ApiResponse(code = 404, message = "User not found")
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+
     })
     @Path("/{userName}")
-    public Response deleteUser(@PathParam("userName") String userName) {
-        try{;
+    public Response deleteUser(@PathParam("userName") String userName, @CookieParam("authToken") String authToken) {
+        try{
+            this.sesm.getSession(authToken);
             this.um.deleteUser(userName);
             return Response.status(201).build();
         }
         catch(UserNotFoundException ex){
             return Response.status(404).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
@@ -139,16 +157,16 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "User Exists")
-
-    })
+            @ApiResponse(code = 501, message = "User Exists"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
+            })
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response newUser(User user) {
+    public Response newUser(User user, @CookieParam("authToken") String authToken) {
 
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
-        //user.setRandomId();
         try{
+            this.sesm.getSession(authToken);
             this.um.addUser(user);
             this.sm.addUser(user);
             return Response.status(201).entity(user).build();
@@ -156,35 +174,53 @@ public class UserServiceBBDD {
         catch(UserRepeatedException ex){
             return Response.status(501).entity(user).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
+        }
     }
 
     @GET
     @ApiOperation(value = "get all Users", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = User.class, responseContainer="List"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
     })
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUsers() {
-        List<User> users = this.um.findAll();
-        GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
-        return Response.status(201).entity(entity).build()  ;
+    public Response getUsers(@CookieParam("authToken") String authToken) {
+        try{
+            this.sesm.getSession(authToken);
+            List<User> users = this.um.findAll();
+            GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
+        }
     }
 
     @PUT
     @ApiOperation(value = "Modifica user", notes = "asdasd")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
-            @ApiResponse(code = 404, message = "User not found")
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
     })
     @Path("/")
-    public Response updateUser(User user) {
+    public Response updateUser(User user, @CookieParam("authToken") String authToken) {
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.updateUser(user);
             return Response.status(201).build();
         }
         catch(UserNotFoundException ex){
             return Response.status(404).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
@@ -193,20 +229,24 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Validation Error")
-
+            @ApiResponse(code = 501, message = "Validation Error"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/stats/{userName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response GetStatsUser( @PathParam("userName") String userName) {
+    public Response GetStatsUser( @PathParam("userName") String userName, @CookieParam("authToken") String authToken) {
         if (userName == null)  return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(userName);
             return Response.status(201).entity(u).build();
-
         }
         catch (UserNotFoundException ex){
             return Response.status(501).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
@@ -215,13 +255,15 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response= String.class),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found")
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/GetMultiplicadorForCobre/{NameUser}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserGetsMultiplicador(@PathParam("NameUser") String NameUser) {
+    public Response UserGetsMultiplicador(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
         if(NameUser == null) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(NameUser);
             double precio = this.um.damePrecioCobre(u);
             return Response.status(200).entity(String.valueOf(precio)).build();
@@ -230,6 +272,10 @@ public class UserServiceBBDD {
         {
             return Response.status(501).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
+        }
     }
     @POST
     @ApiOperation(value = "User Updates Cobre", notes = "hello")
@@ -237,13 +283,14 @@ public class UserServiceBBDD {
             @ApiResponse(code = 201, message = "Successful", response= double.class),
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
-
+            @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/updateCobre/{NameUser}/{Cobre}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserUpdatesCobre(@PathParam("NameUser") String NameUser, @PathParam("Cobre") double Cobre) {
+    public Response UserUpdatesCobre(@PathParam("NameUser") String NameUser, @PathParam("Cobre") double Cobre, @CookieParam("authToken") String authToken) {
         if(NameUser == null || Cobre == 0) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(NameUser);
             this.um.updateCobre(Cobre, u);
             return Response.status(201).entity(String.valueOf(u.getCobre())).build();
@@ -251,6 +298,10 @@ public class UserServiceBBDD {
         catch(UserNotFoundException ex)
         {
             return Response.status(501).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
@@ -261,14 +312,16 @@ public class UserServiceBBDD {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has no cobre"),
-            @ApiResponse(code = 503, message = "User has no multiplicador")
+            @ApiResponse(code = 503, message = "User has no multiplicador"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
 
     })
     @Path("/sellCobre/{NameUser}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserSellsCobre(@PathParam("NameUser") String NameUser) {
+    public Response UserSellsCobre(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
         if(NameUser == null) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(NameUser);
             this.um.updateMoney(u);
             return Response.status(201).entity(String.valueOf(u.getMoney())).build();
@@ -283,6 +336,10 @@ public class UserServiceBBDD {
         catch(UserHasNoMultiplicadorException ex){
             return Response.status(503).build();
         }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
+        }
     }
 
     @PUT
@@ -290,13 +347,15 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found")
+            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/ChangePassword/{UserName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserChangesPassword(String password, @PathParam("UserName") String UserName) {
+    public Response UserChangesPassword(String password, @PathParam("UserName") String UserName, @CookieParam("authToken") String authToken) {
         if(UserName == null|| password == null) return Response.status(500).build();
         try{
+            this.sesm.getSession(authToken);
             User u = this.um.getUserFromUsername(UserName);
             this.um.changePassword(u,password);
             return Response.status(201).build();
@@ -304,6 +363,10 @@ public class UserServiceBBDD {
         catch(UserNotFoundException ex)
         {
             return Response.status(501).build();
+        }
+        catch(UserNotLoggedInException ex){
+            logger.warn("Attention, User not yet logged");
+            return Response.status(506).build();
         }
     }
 
