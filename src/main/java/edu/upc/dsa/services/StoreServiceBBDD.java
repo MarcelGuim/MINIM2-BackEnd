@@ -178,6 +178,7 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has not enough Money"),
+            @ApiResponse(code = 503, message = "User has no items"),
     })
     @Path("ItemsUserCanBuy/{NameUser}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -194,6 +195,9 @@ public class StoreServiceBBDD {
         }
         catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
+        }
+        catch(UserHasNoItemsException ex){
+            return Response.status(503).build();
         }
     }
 }

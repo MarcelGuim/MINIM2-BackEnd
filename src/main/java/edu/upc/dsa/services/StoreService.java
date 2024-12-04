@@ -109,9 +109,6 @@ public class StoreService {
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
         }
-        catch (UserHasNoItemsException ex){
-            return Response.status(505).build();
-        }
     }
 
     @GET

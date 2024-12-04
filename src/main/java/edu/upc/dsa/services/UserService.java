@@ -173,8 +173,8 @@ public class UserService {
     public Response deleteUser(@CookieParam("authToken") String authToken) {
         try{
             User u =SessionManager.getInstance().getSession(authToken);
-            String id = this.um.getUserFromUsername(u.getName()).getId();
-            this.um.deleteUser(id);
+            User u1 = this.um.getUserFromUsername(u.getName());
+            this.um.deleteUser(u1.getName());
             SessionManager.getInstance().removeSession(authToken);
             return Response.status(201).build();
         } catch (Exception e) {

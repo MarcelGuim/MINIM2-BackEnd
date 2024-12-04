@@ -123,13 +123,31 @@ public class StoreManagerImpl implements StoreManager {
         items.clear();
     }
 
-    public List<Item> getItemsUserCanBuy(User u) throws NotEnoughMoneyException{
-        List<Item> itemsUserCanBuy = new ArrayList<>();
-        for(Item i:items){
-            if(i.getCost()<=u.getMoney()) itemsUserCanBuy.add(i);
+    public List<Item> getItemsUserCanBuy(User u) throws NotEnoughMoneyException, UserHasNoItemsException{
+        //Ha de retornar una llista que exclogui els objectes que ja ha comprat
+        List<Item> userItems = itemsOfUsers.get(u.getName());
+        if (userItems == null) {
+            userItems = new ArrayList<>();
         }
-        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-        return itemsUserCanBuy;
+        List<Item> itemsNotBoughtByUser = new ArrayList<>();
+        for (Item item : items) {
+            if (!userItems.contains(item)) {
+                itemsNotBoughtByUser.add(item);
+            }
+        }
+        if(itemsNotBoughtByUser.isEmpty()){
+            throw new UserHasNoItemsException();
+        }
+        else{
+            return itemsNotBoughtByUser;
+        }
+
+        //        List<Item> itemsUserCanBuy = new ArrayList<>();
+//        for(Item i:items){
+//            if(i.getCost()<=u.getMoney()) itemsUserCanBuy.add(i);
+//        }
+//        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
+//        return itemsUserCanBuy;
     };
     public List<GameCharacter> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException{
         List<GameCharacter> charatersUserCanBuy = new ArrayList<>();

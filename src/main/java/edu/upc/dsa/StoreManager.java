@@ -18,6 +18,8 @@ public interface StoreManager {
     public List<GameCharacter> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException;
     public List<GameCharacter> getCharacterUser(String userName) throws UserNotFoundException, UserHasNoCharacterException;
     public void clear();
-    public List<Item> getItemsUserCanBuy(User u) throws  NotEnoughMoneyException;
+    public List<Item> getItemsUserCanBuy(User u) throws  NotEnoughMoneyException, UserHasNoItemsException;
+    //En memoria local diria que està bé, però en MariaDB no retorna nomes els que pots comprar i
+    //encara no tens, retorna els que pots comprar (els tinguis o no)
     public List<GameCharacter> getCharacterUserCanBuy(User u) throws  NotEnoughMoneyException;
 }
