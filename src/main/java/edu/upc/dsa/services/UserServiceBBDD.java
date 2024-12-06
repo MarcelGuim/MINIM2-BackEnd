@@ -2,6 +2,7 @@ package edu.upc.dsa.services;
 
 import edu.upc.dsa.*;
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChangePassword;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/usersBD", description = "Endpoint to Users Service with Data Base")
-@Path("/usersBD")
+@Api(value = "/usersBBDD", description = "Endpoint to Users Service with Data Base")
+@Path("/usersBBDD")
 public class UserServiceBBDD {
     //test
     private ItemManager im;
@@ -68,8 +69,9 @@ public class UserServiceBBDD {
                         false,                // Si debe ser solo para HTTPS (aquí false para desarrollo)
                         true                  // Hacer la cookie accesible solo en HTTP (no por JS)
                 );
+                User u = this.um.getUserFromUsername(user.getName());
                 SessionManager sessionManager = SessionManager.getInstance();
-                sessionManager.createSession(cookieValue,user);
+                sessionManager.createSession(cookieValue,u);
 
 
                 // Devolver la respuesta con la cookie de autenticación
@@ -136,11 +138,11 @@ public class UserServiceBBDD {
             @ApiResponse(code = 506, message = "User Not logged in yet"),
 
     })
-    @Path("/{userName}")
-    public Response deleteUser(@PathParam("userName") String userName, @CookieParam("authToken") String authToken) {
+    @Path("/deleteUser")
+    public Response deleteUser(@CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
-            this.um.deleteUser(userName);
+            User user = this.sesm.getSession(authToken);
+            this.um.deleteUser(user.getName());
             return Response.status(201).build();
         }
         catch(UserNotFoundException ex){
@@ -350,22 +352,26 @@ public class UserServiceBBDD {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 506, message = "User Not logged in yet")
     })
-    @Path("/ChangePassword/{UserName}")
+    @Path("/ChangePassword")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserChangesPassword(String password, @PathParam("UserName") String UserName, @CookieParam("authToken") String authToken) {
-        if(UserName == null|| password == null) return Response.status(500).build();
+    public Response UserChangesPassword(ChangePassword passwords, @PathParam("UserName") String UserName, @CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(UserName);
-            this.um.changePassword(u,password);
-            return Response.status(201).build();
+            User u = sesm.getSession(authToken);
+            String pass = this.um.getUserFromUsername(u.getName()).getPassword();
+            if (pass.equals(passwords.getActualPassword())){
+                this.um.changePassword(u,passwords.getNewPassword());
+                return Response.status(201).build();
+            }
+            else {
+                return Response.status(502).build();
+            }
         }
-        catch(UserNotFoundException ex)
+        catch (UserNotFoundException ex)
         {
-            return Response.status(501).build();
+            return Response.status(503).build();
         }
-        catch(UserNotLoggedInException ex){
-            logger.warn("Attention, User not yet logged");
+        catch (UserNotLoggedInException ex) {
+            logger.warn("Attention, user not logged in yet");
             return Response.status(506).build();
         }
     }

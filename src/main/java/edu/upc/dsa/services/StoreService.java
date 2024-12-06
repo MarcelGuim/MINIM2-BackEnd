@@ -92,13 +92,13 @@ public class StoreService {
             @ApiResponse(code = 505, message = "User has no more items to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
-    @Path("/buyItem/{idItem}")
+    @Path("/buyItem/{itemName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserBuys( @PathParam("idItem") String idItem,@CookieParam("authToken") String authToken) {
-        if(idItem == null) return Response.status(500).build();
+    public Response UserBuys( @PathParam("itemName") String itemName,@CookieParam("authToken") String authToken) {
+        if(itemName == null) return Response.status(500).build();
         try{
             User u=SessionManager.getInstance().getSession(authToken);
-            List<Item> items = sm.BuyItemUser(idItem,u.getName());
+            List<Item> items = sm.BuyItemUser(itemName,u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }

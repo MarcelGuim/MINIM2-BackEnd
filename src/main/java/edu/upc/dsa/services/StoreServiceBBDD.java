@@ -16,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/storeBD", description = "Endpoint to Store Service with Data Base")
-@Path("/storeBD")
+@Api(value = "/storeBBDD", description = "Endpoint to Store Service with Data Base")
+@Path("/storeBBDD")
 public class StoreServiceBBDD {
     private ItemManager im;
     private StoreManager sm;
@@ -109,13 +109,13 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 503, message = "Not enough Money"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
-    @Path("/buyCharacters/{NameUser}/{CharacterName}")
+    @Path("/buyCharacters/{CharacterName}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserBuysCharcter(@PathParam("NameUser") String NameUser, @PathParam("CharacterName") String CharacterName, @CookieParam("authToken") String authToken) {
-        if(NameUser == null || CharacterName == null) return Response.status(500).build();
+    public Response UserBuysCharcter(@PathParam("CharacterName") String CharacterName, @CookieParam("authToken") String authToken) {
+        if(CharacterName == null) return Response.status(500).build();
         try{
-            this.sesm.getSession(authToken);
-            List<GameCharacter> gameCharacters = sm.BuyCharacter(NameUser,CharacterName);
+            User u = this.sesm.getSession(authToken);
+            List<GameCharacter> gameCharacters = sm.BuyCharacter(u.getName(),CharacterName);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
         }

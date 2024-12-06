@@ -18,7 +18,7 @@ public class SessionManager {
     private static SessionManager instance;
 
     // Mapa de sesiones activas, accesible de forma segura desde múltiples hilos
-    private Map<String, User> activeSessions;
+    private HashMap<String, User> activeSessions;
 
     // Constructor privado para impedir instanciación directa
     private SessionManager() {
