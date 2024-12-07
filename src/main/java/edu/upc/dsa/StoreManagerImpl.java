@@ -73,7 +73,7 @@ public class StoreManagerImpl implements StoreManager {
     };
 
 
-    public List<Item> BuyItemUser(String ItemName, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException {
+    public List<Item> BuyItemUser(String ItemName, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException, UserHasNoItemsException {
         User u = um.getUserFromUsername(nameUser);
         if (u==null) throw new UserNotFoundException();
         Item i = im.getItem(ItemName);
@@ -83,12 +83,16 @@ public class StoreManagerImpl implements StoreManager {
             usersOfItems.get(ItemName).add(u);
             u.setMoney(u.getMoney()-i.getCost());
             logger.info(u.getName()+" HA COMPRADO "+i.getName());
-            return itemsOfUsers.get(u.getName());
+            try{
+                return getItemsUserCanBuy(u);
+            } catch (UserHasNoItemsException e) {
+                throw new UserHasNoItemsException();
+            }
         }
         else throw new NotEnoughMoneyException();
     };
 
-    public List<GameCharacter> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException {
+    public List<GameCharacter> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException, UserHasNoCharacterException{
         GameCharacter c = cm.getCharacter(nameCharacter);
         if (c== null) throw new CharacterNotFoundException();
         User u = um.getUserFromUsername(nameUser);
@@ -97,7 +101,11 @@ public class StoreManagerImpl implements StoreManager {
             charactersOfUsers.get(u.getName()).add(c);
             usersOfCharacter.get(c.getName()).add(u);
             u.setMoney(u.getMoney()-c.getCost());
-            return charactersOfUsers.get(u.getName());
+            try{
+                return getCharacterUserCanBuy(u);
+            } catch (UserHasNoCharacterException e) {
+                throw new UserHasNoCharacterException();
+            }
         }
         else throw new NotEnoughMoneyException();
     }
@@ -139,23 +147,34 @@ public class StoreManagerImpl implements StoreManager {
             throw new UserHasNoItemsException();
         }
         else{
+            for (Item i : itemsNotBoughtByUser) {
+                logger.info("Item not bought by user: " + i.getName());
+            }
             return itemsNotBoughtByUser;
         }
 
-        //        List<Item> itemsUserCanBuy = new ArrayList<>();
-//        for(Item i:items){
-//            if(i.getCost()<=u.getMoney()) itemsUserCanBuy.add(i);
-//        }
-//        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-//        return itemsUserCanBuy;
     };
-    public List<GameCharacter> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException{
-        List<GameCharacter> charatersUserCanBuy = new ArrayList<>();
-        for(GameCharacter c: gameCharacters){
-            if(c.getCost()<=u.getMoney()) charatersUserCanBuy.add(c);
+    public List<GameCharacter> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException,UserHasNoCharacterException{
+        //Ha de retornar una llista que exclogui els characters que ja ha comprat/aconseguit
+        List<GameCharacter> userCharacters = charactersOfUsers.get(u.getName());
+        if (userCharacters == null) {
+            userCharacters = new ArrayList<>();
         }
-        if(charatersUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-        return charatersUserCanBuy;
+        List<GameCharacter> charactersNotBoughtByUser = new ArrayList<>();
+        for (GameCharacter character : gameCharacters) {
+            if (!userCharacters.contains(character)) {
+                charactersNotBoughtByUser.add(character);
+            }
+        }
+        if(charactersNotBoughtByUser.isEmpty()){
+            throw new UserHasNoCharacterException();
+        }
+        else{
+            for (GameCharacter c : charactersNotBoughtByUser) {
+                logger.info("Characters not bought by user: " + c.getName());
+            }
+            return charactersNotBoughtByUser;
+        }
     };
 
 }

@@ -41,6 +41,7 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "Item Not Found"),
             @ApiResponse(code = 503, message = "Not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more items to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("/buyItem/{itemName}")
@@ -62,6 +63,9 @@ public class StoreServiceBBDD {
         }
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
+        }
+        catch (UserHasNoItemsException ex){
+            return Response.status(505).build();
         }
         catch(UserNotLoggedInException ex){
             logger.warn("Attention, user not logged in yet");
@@ -107,6 +111,7 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "Character Not Found"),
             @ApiResponse(code = 503, message = "Not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more characters to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("/buyCharacters/{CharacterName}")
@@ -128,6 +133,9 @@ public class StoreServiceBBDD {
         }
         catch (NotEnoughMoneyException ex){
             return Response.status(503).build();
+        }
+        catch (UserHasNoCharacterException ex){
+            return Response.status(505).build();
         }
         catch(UserNotLoggedInException ex){
             logger.warn("Attention, user not logged in yet");
@@ -174,6 +182,7 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has not enough Money"),
+            @ApiResponse(code = 505, message = "User has no more characters to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
     @Path("CharactersUserCanBuy/{NameUser}")
@@ -192,6 +201,9 @@ public class StoreServiceBBDD {
         }
         catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
+        }
+        catch(UserHasNoCharacterException ex){
+            return Response.status(505).build();
         }
         catch(UserNotLoggedInException ex){
             logger.warn("Attention, user not logged in yet");
