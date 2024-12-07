@@ -69,9 +69,8 @@ public class UserServiceBBDD {
                         false,                // Si debe ser solo para HTTPS (aquí false para desarrollo)
                         true                  // Hacer la cookie accesible solo en HTTP (no por JS)
                 );
-                User u = this.um.getUserFromUsername(user.getName());
                 SessionManager sessionManager = SessionManager.getInstance();
-                sessionManager.createSession(cookieValue,u);
+                sessionManager.createSession(cookieValue,this.um.getUserFromUsername(user.getName()));
 
 
                 // Devolver la respuesta con la cookie de autenticación
@@ -231,20 +230,14 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "Validation Error"),
             @ApiResponse(code = 506, message = "User Not logged in yet")
     })
-    @Path("/stats/{userName}")
+    @Path("/stats")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response GetStatsUser( @PathParam("userName") String userName, @CookieParam("authToken") String authToken) {
-        if (userName == null)  return Response.status(500).build();
+    public Response GetStatsUser(@CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(userName);
+            User u = this.sesm.getSession(authToken);
             return Response.status(201).entity(u).build();
-        }
-        catch (UserNotFoundException ex){
-            return Response.status(501).build();
         }
         catch(UserNotLoggedInException ex){
             logger.warn("Attention, User not yet logged");

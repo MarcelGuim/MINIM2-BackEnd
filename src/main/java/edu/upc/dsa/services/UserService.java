@@ -284,7 +284,6 @@ public class UserService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 506, message = "User Not logged in yet"),
 
     })
@@ -296,17 +295,8 @@ public class UserService {
         }
         try {
             // Validar el authToken y obtener el usuario asociado
-            User sessionUser = sesm.getSession(authToken);
-            if (sessionUser == null) {
-                return Response.status(501).build();
-            }
-
-            // Obtener detalles del usuario a través del UserManager
-            User u = this.um.getUserFromUsername(sessionUser.getName());
+            User u = sesm.getSession(authToken);
             return Response.status(201).entity(u).build();
-        }
-        catch (UserNotFoundException ex) {
-            return Response.status(501).build();
         }
         catch (UserNotLoggedInException ex){
             logger.warn("Attention, User not yet logged");
