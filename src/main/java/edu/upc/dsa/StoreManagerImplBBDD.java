@@ -65,7 +65,7 @@ public class StoreManagerImplBBDD implements StoreManager {
 
     };
 
-    public List<Item> BuyItemUser(String ItemName, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException {
+    public List<Item> BuyItemUser(String ItemName, String nameUser) throws UserNotFoundException, ItemNotFoundException, NotEnoughMoneyException, UserHasNoItemsException {
         User u = (User)session.get(User.class, "name", nameUser);
         if (u==null) throw new UserNotFoundException();
         Item i = (Item)session.get(Item.class, "name", ItemName);
@@ -75,12 +75,16 @@ public class StoreManagerImplBBDD implements StoreManager {
             u.setMoney(u.getMoney()-i.getCost());
             session.update(u,"name",u.getName());
             logger.info(u.getName()+" HA COMPRADO "+i.getName());
-            return (List<Item>)session.getRelaciones(Item.class,"name",nameUser);
+            try{
+                return getItemsUserCanBuy(u);
+            } catch (UserHasNoItemsException e) {
+                throw new UserHasNoItemsException();
+            }
         }
         else throw new NotEnoughMoneyException();
     };
 
-    public List<GameCharacter> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException {
+    public List<GameCharacter> BuyCharacter(String nameUser, String nameCharacter) throws UserNotFoundException, CharacterNotFoundException, NotEnoughMoneyException, UserHasNoCharacterException {
         GameCharacter c = (GameCharacter)session.get(GameCharacter.class,"name",nameCharacter);
         if (c== null) throw new CharacterNotFoundException();
         User u = (User)session.get(User.class, "name", nameUser);
@@ -89,7 +93,11 @@ public class StoreManagerImplBBDD implements StoreManager {
             session.buy("name",nameUser,null,null,"name",nameCharacter);
             u.setMoney(u.getMoney()-c.getCost());
             session.update(u,"name",u.getName());
-            return (List<GameCharacter>)session.getRelaciones(GameCharacter.class,"name",nameUser);
+            try{
+                return getCharacterUserCanBuy(u);
+            } catch (UserHasNoCharacterException e) {
+                throw new UserHasNoCharacterException();
+            }
         }
         else throw new NotEnoughMoneyException();
     }
@@ -114,19 +122,30 @@ public class StoreManagerImplBBDD implements StoreManager {
         session.deleteAll(useritemcharacterrelation.class);
     }
 
-    public List<Item> getItemsUserCanBuy(User u) throws NotEnoughMoneyException{
-        HashMap<String,String> conditions = new HashMap<>();
-        conditions.put("cost <",String.valueOf(u.getMoney()));
-        List<Item> itemsUserCanBuy = (List<Item>)session.findAllWithConditions(Item.class, conditions);
-        if(itemsUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-        return itemsUserCanBuy;
+    public List<Item> getItemsUserCanBuy(User u) throws UserHasNoItemsException{
+        List<Item> itemsUserCanBuy = (List<Item>)session.findObjectNotBoughtForUser(Item.class,"name",u.getName());
+        if(itemsUserCanBuy.isEmpty()){
+            throw new UserHasNoItemsException();
+        }
+        else {
+            for (Item i : itemsUserCanBuy) {
+                logger.info("Item not bought by user: " + i.getName());
+            }
+            return itemsUserCanBuy;
+        }
+
     };
-    public List<GameCharacter> getCharacterUserCanBuy(User u) throws NotEnoughMoneyException{
-        HashMap<String,String> conditions = new HashMap<>();
-        conditions.put("cost <",String.valueOf(u.getMoney()));
-        List<GameCharacter> charatersUserCanBuy = (List<GameCharacter>)session.findAllWithConditions(GameCharacter.class, conditions);
-        if(charatersUserCanBuy.isEmpty()) throw new NotEnoughMoneyException();
-        return charatersUserCanBuy;
+    public List<GameCharacter> getCharacterUserCanBuy(User u) throws UserHasNoCharacterException{
+        List<GameCharacter> CharacterUserCanBuy = (List<GameCharacter>)session.findObjectNotBoughtForUser(GameCharacter.class,"name",u.getName());
+        if(CharacterUserCanBuy.isEmpty()) {
+            throw new UserHasNoCharacterException();
+        }
+        else{
+            for (GameCharacter c : CharacterUserCanBuy) {
+                logger.info("Characters not bought by user: " + c.getName());
+            }
+            return CharacterUserCanBuy;
+        }
     };
 
 }

@@ -42,4 +42,6 @@ public interface SessionBD {
     //Per utilitzar-ho, cal indicar quina és el tipus que volem (theClass)
     //Quina clau utilitzem per buscar-ho (nom, correu, url...)
     //I quin valor te la clau (pepito, pepito@gmail.com...)
+    public <T> List<T> findObjectNotBoughtForUser(Class<T> theClass, Object key, Object value);
+
 }

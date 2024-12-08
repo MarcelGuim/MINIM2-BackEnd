@@ -171,6 +171,53 @@ public class SessionImpl implements SessionBD {
         }
     }
 
+    public <T> List<T> findObjectNotBoughtForUser(Class<T> theClass,Object key,Object value) {
+        String IDUser = "";
+        try {
+            String sql = QueryHelper.createQuerySELECT(User.class, key);
+            PreparedStatement pstm = null;
+            pstm = conn.prepareStatement(sql);
+            pstm.setObject(1, value);
+            ResultSet res = pstm.executeQuery();
+            if (res.next()) {
+                ResultSetMetaData rsmd = res.getMetaData();
+                int numColumns = rsmd.getColumnCount();
+                int i = 1;
+                while (i < numColumns + 1 && IDUser.isEmpty()) {
+                    String keyRes = rsmd.getColumnName(i);
+                    Object valueRes = res.getObject(i);
+                    if (keyRes.equals("ID")) IDUser = String.valueOf(valueRes);
+                    i++;
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.warn("Error in the findObjectNotBoughtForUser function when finding the User ID: "+ e);
+        }
+
+        try{
+            String theQuery = QueryHelper.createSelectIDWhereNotIn(theClass);
+            PreparedStatement pstm = null;
+            pstm = conn.prepareStatement(theQuery);
+
+            pstm.setObject(1,IDUser);
+            ResultSet res = pstm.executeQuery();
+
+            ArrayList<String> fields = new ArrayList<>(Arrays.asList(ObjectHelper.getFieldsDirectlyClass(theClass)));
+            List<T> lists = new ArrayList<>();
+            while (res.next()) {
+                T o = theClass.newInstance();
+                for(String field: fields) ObjectHelper.setter(o, field, res.getObject(field));
+                lists.add(o);
+            }
+            return lists;
+        }
+        catch(Exception ex){
+            logger.warn("Error in the findObjectNotBoughtForUser: "+ ex);
+            return null;
+        }
+    }
+
     public <T> List<T> findAllWithConditions(Class<T> theClass, HashMap params) {
         try{
             String theQuery = QueryHelper.createSelectFindAll(theClass, params);

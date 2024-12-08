@@ -49,7 +49,8 @@ public class StoreServiceBBDD {
     public Response UserBuys( @PathParam("itemName") String itemName,@CookieParam("authToken") String authToken) {
         if(itemName == null) return Response.status(500).build();
         try{
-            User u= sesm.getSession(authToken);
+            sesm.getSession(authToken);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = sm.BuyItemUser(itemName,u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
@@ -119,7 +120,8 @@ public class StoreServiceBBDD {
     public Response UserBuysCharcter(@PathParam("CharacterName") String CharacterName, @CookieParam("authToken") String authToken) {
         if(CharacterName == null) return Response.status(500).build();
         try{
-            User u = this.sesm.getSession(authToken);
+            this.sesm.getSession(authToken);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<GameCharacter> gameCharacters = sm.BuyCharacter(u.getName(),CharacterName);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
@@ -180,24 +182,19 @@ public class StoreServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = GameCharacter.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has not enough Money"),
             @ApiResponse(code = 505, message = "User has no more characters to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
-    @Path("CharactersUserCanBuy/{NameUser}")
+    @Path("CharactersUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCharactersUserCanBuy(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
-        if(NameUser == null) return Response.status(500).build();
+    public Response getCharactersUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
             this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<GameCharacter> gameCharacters = this.sm.getCharacterUserCanBuy(u);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
-        }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
         }
         catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
@@ -209,6 +206,10 @@ public class StoreServiceBBDD {
             logger.warn("Attention, user not logged in yet");
             return Response.status(506).build();
         }
+        catch(Exception ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(500).build();
+        }
     }
 
     @GET
@@ -216,25 +217,20 @@ public class StoreServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 502, message = "User has not enough Money"),
             @ApiResponse(code = 503, message = "User has no items"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
 
     })
-    @Path("ItemsUserCanBuy/{NameUser}")
+    @Path("ItemsUserCanBuy")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItemssUserCanBuy(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
-        if(NameUser == null) return Response.status(500).build();
+    public Response getItemssUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
             this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(NameUser);
+            User u=SessionManager.getInstance().getSession(authToken);
             List<Item> items = this.sm.getItemsUserCanBuy(u);
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
-        }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
         }
         catch(NotEnoughMoneyException ex){
             return Response.status(502).build();
