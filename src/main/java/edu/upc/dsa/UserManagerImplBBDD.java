@@ -4,6 +4,7 @@ import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
 import edu.upc.dsa.orm.SessionBD;
+import edu.upc.dsa.util.RandomUtils;
 import org.apache.log4j.Logger;
 
 import javax.mail.*;
@@ -21,10 +22,13 @@ public class UserManagerImplBBDD implements UserManager {
     private static UserManager instance;
     protected HashMap<String, Double> multiplicadors;
     final static Logger logger = Logger.getLogger(UserManagerImplBBDD.class);
+    protected HashMap<String, String> codes;
     SessionBD sessionBD;
+    private RandomUtils rdu;
     private UserManagerImplBBDD() {
         this.multiplicadors = new HashMap<>();
         sessionBD = FactorySession.openSession();
+        codes = new HashMap<>();
     }
 
     public static UserManager getInstance() {
@@ -163,6 +167,57 @@ public class UserManagerImplBBDD implements UserManager {
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(textPart); // Afegir el text
         multipart.addBodyPart(imagePart); // Afegir la imatge
+
+        // Assignar el contingut al missatge
+        message.setContent(multipart);
+
+        // Enviar el correu
+        Transport.send(message);
+    }
+
+    public void changeCorreo(User user, String correo, String code) throws WrongCodeException {
+        if(codes.get(user.getName()).equals(code)){
+            String correoInicial = user.getCorreo();
+            user.setCorreo(correo);
+            sessionBD.update(user,"correo",correoInicial);
+        }
+        else throw new WrongCodeException();
+    }
+
+    public void getCodeForCorreoChange(User u)throws Exception{
+        String code = rdu.getCode();
+        codes.put(u.getName(),code);
+        String host = "smtp.gmail.com";
+        final String fromEmail = "correuperdsa@gmail.com";
+        final String password = "eqqq ymrx grbg htld";
+        String toEmail = u.getCorreo();
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        // Crear el missatge
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(fromEmail));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+        message.setSubject("Recuperació de contrasenya Per RobaCobres");
+
+        // Cos del text del correu
+        MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setText("Hola el teu codi és: "+code);
+
+
+        // Crear el contingut multipart
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(textPart); // Afegir el text
 
         // Assignar el contingut al missatge
         message.setContent(multipart);

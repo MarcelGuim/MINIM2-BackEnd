@@ -394,6 +394,56 @@ public class UserServiceBBDD {
         }
     }
 
+    @PUT
+    @ApiOperation(value = "User wants to change the mail", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 503, message = "User has the wrong code"),
+            @ApiResponse(code = 506, message = "User Not logged in yet")
+    })
+    @Path("/ChangeMail/{NewCorreo}/{code}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response UserChangeMail(@PathParam("NewCorreo") String NewCorreo, @PathParam("code") String code, @CookieParam("authToken") String authToken) {
+        try {
+            User u = sesm.getSession(authToken);
+            this.um.changeCorreo(u, NewCorreo, code);
+            return Response.status(201).build();
+        } catch (UserNotLoggedInException ex) {
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        } catch (WrongCodeException ex) {
+            logger.warn("Attention, user has the wrong code");
+            return Response.status(503).build();
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "Get Code", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "Error sending the e-mail"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/GetCode")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCode( @CookieParam("authToken") String authToken) {
+        try{
+            User u = this.sesm.getSession(authToken);
+            this.um.getCodeForCorreoChange(u);
+            return Response.status(201).build();
+        }
+        catch (UserNotLoggedInException ex) {
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+        catch (Exception ex)
+        {
+            return Response.status(502).build();
+        }
+    }
+
     private String generateRandomSessionId() {
         return java.util.UUID.randomUUID().toString();  // Genera un UUID aleatorio como token de sesión
     }
