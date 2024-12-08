@@ -102,6 +102,11 @@ public class QueryHelper {
         sb.append("DELETE FROM ").append(theClass.getSimpleName());
         return sb.toString();
     }
+    public static String createSelectIDWhereNotIn(Class theClass) {
+        //SELECT * FROM Item WHERE ID NOT IN (SELECT ID_Item FROM UserItemCharacterRelation WHERE ID_User = <ID_DEL_USUARIO>);
+        StringBuffer sb = new StringBuffer("SELECT * FROM "+theClass.getSimpleName()+" WHERE ID NOT IN(SELECT ID_" + theClass.getSimpleName()+ " FROM UserItemCharacterRelation WHERE ID_User = ? AND ID_"+ theClass.getSimpleName()+ " IS NOT NULL)");
+        return sb.toString();
+    }
     public static String createSelectFindAll(Class theClass, HashMap<Object, Object> params) {
 
         Set<Map.Entry<Object, Object>> set = params.entrySet();
@@ -115,6 +120,8 @@ public class QueryHelper {
         }
         return sb.toString();
     }
+
+
     public static String createQueryUPDATEWithID(Object entity) {
 
         StringBuffer sb = new StringBuffer("UPDATE ");
