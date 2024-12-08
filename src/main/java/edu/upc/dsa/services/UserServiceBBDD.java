@@ -69,8 +69,7 @@ public class UserServiceBBDD {
                         false,                // Si debe ser solo para HTTPS (aquí false para desarrollo)
                         true                  // Hacer la cookie accesible solo en HTTP (no por JS)
                 );
-                SessionManager sessionManager = SessionManager.getInstance();
-                sessionManager.createSession(cookieValue,this.um.getUserFromUsername(user.getName()));
+                sesm.createSession(cookieValue,this.um.getUserFromUsername(user.getName()));
 
 
                 // Devolver la respuesta con la cookie de autenticación
@@ -169,7 +168,6 @@ public class UserServiceBBDD {
         try{
             this.sesm.getSession(authToken);
             this.um.addUser(user);
-            this.sm.addUser(user);
             return Response.status(201).entity(user).build();
         }
         catch(UserRepeatedException ex){
