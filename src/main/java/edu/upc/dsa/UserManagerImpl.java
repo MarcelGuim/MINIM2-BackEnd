@@ -2,7 +2,7 @@ package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.User;
-import edu.upc.dsa.orm.SessionBD;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,15 +97,15 @@ public class UserManagerImpl implements UserManager {
     public void updateCobre(double cobre, User user)throws UserNotFoundException{
         user.setCobre(cobre + user.getCobre());
     };
-    public double updateMoney(User user) throws UserHasNoCobreException, UserHasNoMultiplicadorException{
+    public double updateMoney(User user, double kilocobre) throws UserNotEnoughCobreException, UserHasNoMultiplicadorException{
         if (multiplicadors.containsKey(user.getName())) {
-            if(user.getCobre() != 0){
-                double resultat = user.getMoney() + user.getCobre()*multiplicadors.get(user.getName());
+            if(user.getCobre() >= kilocobre){
+                double resultat = user.getMoney() + kilocobre*multiplicadors.get(user.getName());
                 user.setMoney(resultat);
-                user.setCobre(0);
+                user.setCobre(user.getCobre()-kilocobre);
                 return resultat;
             }
-            else throw new UserHasNoCobreException();
+            else throw new UserNotEnoughCobreException();
         }
         else throw new UserHasNoMultiplicadorException();
     };

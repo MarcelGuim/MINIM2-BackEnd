@@ -21,7 +21,7 @@ public interface UserManager {
     //Implementada
     public void updateCobre(double cobre, User user)throws UserNotFoundException;
     //Implementada
-    public double updateMoney(User user) throws UserHasNoCobreException, UserHasNoMultiplicadorException;
+    public double updateMoney(User user, double kilocobre) throws UserNotEnoughCobreException, UserHasNoMultiplicadorException;
     //Implementada
     public double damePrecioCobre(User user);
     //Implementada (No fa res a la BD)

@@ -1,9 +1,6 @@
 package edu.upc.dsa;
 
-import edu.upc.dsa.exceptions.UserHasNoCobreException;
-import edu.upc.dsa.exceptions.UserHasNoMultiplicadorException;
-import edu.upc.dsa.exceptions.UserNotFoundException;
-import edu.upc.dsa.exceptions.UserRepeatedException;
+import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
 import edu.upc.dsa.orm.SessionBD;
@@ -85,16 +82,16 @@ public class UserManagerImplBBDD implements UserManager {
         user.setCobre(cobre + user.getCobre());
         this.updateUser(user);
     };
-    public double updateMoney(User user) throws UserHasNoCobreException, UserHasNoMultiplicadorException{
+    public double updateMoney(User user, double kilocobre) throws UserNotEnoughCobreException, UserHasNoMultiplicadorException{
         if (multiplicadors.containsKey(user.getName())) {
-            if(user.getCobre() != 0){
-                double resultat = user.getMoney() + user.getCobre()*multiplicadors.get(user.getName());
+            if(user.getCobre() >= kilocobre){
+                double resultat = user.getMoney() + kilocobre*multiplicadors.get(user.getName());
                 user.setMoney(resultat);
-                user.setCobre(0);
+                user.setCobre(user.getCobre()-kilocobre);
                 sessionBD.update(user,"correo",user.getCorreo());
                 return resultat;
             }
-            else throw new UserHasNoCobreException();
+            else throw new UserNotEnoughCobreException();
         }
         else throw new UserHasNoMultiplicadorException();
     };

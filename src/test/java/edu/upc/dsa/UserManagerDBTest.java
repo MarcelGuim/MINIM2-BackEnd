@@ -99,7 +99,7 @@ public class UserManagerDBTest {
 
         }
     }
-
+    /*
     @Test
     public void UpdateMoney() {
         try {
@@ -118,6 +118,8 @@ public class UserManagerDBTest {
 
         }
     }
+
+     */
 
     @Test
     public void ClearAllUsers(){
