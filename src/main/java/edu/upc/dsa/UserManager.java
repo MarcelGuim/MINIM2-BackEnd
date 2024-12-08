@@ -33,4 +33,7 @@ public interface UserManager {
     //Implementada
     public void RecoverPassword(User user) throws Exception;
     //Implementada
+    public void changeCorreo(User user, String correo, String code) throws  WrongCodeException;
+    //Implementada
+    public void getCodeForCorreoChange(User u) throws Exception;
 }
