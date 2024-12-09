@@ -44,11 +44,11 @@ public class ORMTEST {
     @Test
     public void TestAddUsers(){
         SessionBD session = FactorySession.openSession(); //url, user, password);
-        session.save(u1);
-        session.save(u2);
+        //session.save(u1);
+        //session.save(u2);
         session.save(u3);
         u4.setMoney(100);
-        session.save(u4);
+        //session.save(u4);
     }
     @Test
     public void TestAddItems(){

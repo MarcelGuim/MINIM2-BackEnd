@@ -251,7 +251,7 @@ public class UserServiceBBDD {
             @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 506, message = "User Not logged in yet")
     })
-    @Path("/GetMultiplicadorForCobre/{NameUser}")
+    @Path("/GetMultiplicadorForCobre/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response UserGetsMultiplicador(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
         if(NameUser == null) return Response.status(500).build();

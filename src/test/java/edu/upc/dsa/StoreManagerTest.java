@@ -94,5 +94,8 @@ public class StoreManagerTest {
         catch(NotEnoughMoneyException ex){
 
         }
+        catch(UserHasNoItemsException ex){
+
+        }
     }
 }
