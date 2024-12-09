@@ -60,6 +60,10 @@ public class ItemService {
                 u2.setMoney(100);
                 u3.setMoney(1000);
                 u4.setMoney(5000);
+                u1.setCobre(400);
+                u2.setCobre(400);
+                u3.setCobre(400);
+                u4.setCobre(400);
                 try{
                     this.um.addUser(u1);
                     this.um.addUser(u2);

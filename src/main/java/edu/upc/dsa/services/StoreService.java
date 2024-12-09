@@ -60,6 +60,10 @@ public class StoreService {
                 u2.setMoney(100);
                 u3.setMoney(1000);
                 u4.setMoney(5000);
+                u1.setCobre(400);
+                u2.setCobre(400);
+                u3.setCobre(400);
+                u4.setCobre(400);
                 try{
                     this.um.addUser(u1);
                     this.um.addUser(u2);
@@ -98,7 +102,8 @@ public class StoreService {
         if(itemName == null) return Response.status(500).build();
         try{
             User u=SessionManager.getInstance().getSession(authToken);
-            List<Item> items = sm.BuyItemUser(itemName,u.getName());
+            User usuario = this.um.getUserFromUsername(u.getName());
+            List<Item> items = sm.BuyItemUser(itemName,usuario.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }
@@ -165,9 +170,9 @@ public class StoreService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response UserBuysCharcter(@PathParam("CharacterName") String CharacterName, @CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
             User u=SessionManager.getInstance().getSession(authToken);
-            List<GameCharacter> gameCharacters = sm.BuyCharacter(u.getName(),CharacterName);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            List<GameCharacter> gameCharacters = sm.BuyCharacter(usuario.getName(),CharacterName);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
         }
@@ -228,6 +233,7 @@ public class StoreService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = GameCharacter.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 505, message = "User has no more characters to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
@@ -235,11 +241,15 @@ public class StoreService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCharactersUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
             User u=SessionManager.getInstance().getSession(authToken);
-            List<GameCharacter> gameCharacters = this.sm.getCharacterUserCanBuy(u);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            List<GameCharacter> gameCharacters = this.sm.getCharacterUserCanBuy(usuario);
             GenericEntity<List<GameCharacter>> entity = new GenericEntity<List<GameCharacter>>(gameCharacters) {};
             return Response.status(201).entity(entity).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
         }
         catch(UserHasNoCharacterException ex){
             return Response.status(505).build();
@@ -259,6 +269,7 @@ public class StoreService {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response = Item.class, responseContainer="List"),
             @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 505, message = "User has no more items to buy"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
@@ -266,11 +277,15 @@ public class StoreService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getItemsUserCanBuy(@CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
             User u=SessionManager.getInstance().getSession(authToken);
-            List<Item> items = this.sm.getItemsUserCanBuy(u);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            List<Item> items = this.sm.getItemsUserCanBuy(usuario);
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
         }
         catch(UserHasNoItemsException ex){
             return Response.status(505).build();

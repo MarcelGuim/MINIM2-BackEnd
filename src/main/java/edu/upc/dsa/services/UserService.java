@@ -62,6 +62,10 @@ public class UserService {
                 u2.setMoney(100);
                 u3.setMoney(1000);
                 u4.setMoney(5000);
+                u1.setCobre(400);
+                u2.setCobre(400);
+                u3.setCobre(400);
+                u4.setCobre(400);
                 try{
                     this.um.addUser(u1);
                     this.um.addUser(u2);
@@ -276,56 +280,54 @@ public class UserService {
         }
     }
 
-    @POST
-    @ApiOperation(value = "Get stats of user", notes = "Retrieve user stats using authToken")
+    @GET
+    @ApiOperation(value = "Get stats of user", notes = "hello")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response = User.class),
-            @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 506, message = "User Not logged in yet"),
+            @ApiResponse(code = 201, message = "Successful", response=User.class),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
 
     })
     @Path("/stats")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response GetStatsUser(@CookieParam("authToken") String authToken) {
-        if (authToken == null) {
-            return Response.status(500).build();
-        }
-        try {
-            // Validar el authToken y obtener el usuario asociado
-            User u = sesm.getSession(authToken);
-            return Response.status(201).entity(u).build();
-        }
-        catch (UserNotLoggedInException ex){
-            logger.warn("Attention, User not yet logged");
-            return Response.status(501).build();
-        }
-    }
-
-    @POST
-    @ApiOperation(value = "User Gets Multiplicador", notes = "hello")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response= String.class),
-            @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
-            @ApiResponse(code = 506, message = "User Not logged in yet"),
-    })
-    @Path("/GetMultiplicadorForCobre/{NameUser}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserGetsMultiplicador(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
-        if(NameUser == null) return Response.status(500).build();
         try{
-            this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(NameUser);
-            double precio = this.um.damePrecioCobre(u);
-            return Response.status(200).entity(String.valueOf(precio)).build();
+            User u =SessionManager.getInstance().getSession(authToken);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            return Response.status(201).entity(usuario).build();
         }
         catch(UserNotFoundException ex)
         {
             return Response.status(501).build();
         }
-        catch (UserNotLoggedInException ex) {
-            logger.warn("Attention, user not logged in yet");
-            return Response.status(506).build();
+        catch (Exception ex){
+            return Response.status(500).build();
+        }
+    }
+
+    @GET
+    @ApiOperation(value = "User Gets Multiplicador", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 501, message = "User not found"),
+    })
+    @Path("/GetMultiplicadorForCobre")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response UserGetsMultiplicador(@CookieParam("authToken") String authToken) {
+        try{
+            User u =SessionManager.getInstance().getSession(authToken);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            Double precio = this.um.damePrecioCobre(usuario);
+            return Response.status(201).entity(String.valueOf(precio)).build();
+        }
+        catch(UserNotFoundException ex)
+        {
+            return Response.status(501).build();
+        }
+        catch(Exception ex)
+        {
+            return Response.status(500).build();
         }
     }
     @POST
@@ -361,29 +363,30 @@ public class UserService {
     @POST
     @ApiOperation(value = "User sells all Cobre", notes = "hello")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successful", response= String.class),
-            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 201, message = "Successful", response= User.class),
+            @ApiResponse(code = 500, message = "Error, se quiere vender mas cobre del que el usuario tiene"),
             @ApiResponse(code = 501, message = "User not found"),
-            @ApiResponse(code = 502, message = "User has no cobre"),
+            @ApiResponse(code = 502, message = "User wants to sell 0 cobre"),
             @ApiResponse(code = 503, message = "User has no multiplicador"),
             @ApiResponse(code = 506, message = "User Not logged in yet"),
     })
-    @Path("/sellCobre/{NameUser}")
+    @Path("/sellCobre/{KilosCobre}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response UserSellsCobre(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
-        if(NameUser == null) return Response.status(500).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response UserSellsCobre(@PathParam("KilosCobre") Double Cobre, @CookieParam("authToken") String authToken) {
+        if(Cobre == 0) return Response.status(502).build();
         try{
-            this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(NameUser);
-            this.um.updateMoney(u);
-            return Response.status(201).entity(String.valueOf(u.getMoney())).build();
+            User u =SessionManager.getInstance().getSession(authToken);
+            User usuario = this.um.getUserFromUsername(u.getName());
+            this.um.updateMoney(usuario,Cobre);
+            User useractualizado = this.um.getUserFromUsername(u.getName());
+            return Response.status(201).entity(useractualizado).build();
         }
-        catch(UserNotFoundException ex)
-        {
+        catch(UserNotEnoughCobreException ex){
+            return Response.status(500).build();
+        }
+        catch(UserNotFoundException ex){
             return Response.status(501).build();
-        }
-        catch(UserHasNoCobreException ex){
-            return Response.status(502).build();
         }
         catch(UserHasNoMultiplicadorException ex){
             return Response.status(503).build();
