@@ -83,13 +83,12 @@ public class StoreServiceBBDD {
             @ApiResponse(code = 502, message = "User has no Items"),
             @ApiResponse(code = 506, message = "User not logged in yet"),
     })
-    @Path("Items/{NameUser}")
+    @Path("Items")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUsers(@PathParam("NameUser") String NameUser, @CookieParam("authToken") String authToken) {
-        if(NameUser == null) return Response.status(500).build();
+    public Response getUsers(@CookieParam("authToken") String authToken) {
         try{
-            this.sesm.getSession(authToken);
-            List<Item> items = this.sm.getItemUser(NameUser);
+            User u = this.sesm.getSession(authToken);
+            List<Item> items = this.sm.getItemUser(u.getName());
             GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {};
             return Response.status(201).entity(entity).build();
         }

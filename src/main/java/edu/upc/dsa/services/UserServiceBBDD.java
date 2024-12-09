@@ -157,25 +157,19 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Validation Error"),
-            @ApiResponse(code = 501, message = "User Exists"),
-            @ApiResponse(code = 506, message = "User Not logged in yet")
+            @ApiResponse(code = 501, message = "User Exists")
             })
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response newUser(User user, @CookieParam("authToken") String authToken) {
+    public Response newUser(User user) {
 
         if (user.getName()==null || user.getPassword()==null)  return Response.status(500).entity(user).build();
         try{
-            this.sesm.getSession(authToken);
             this.um.addUser(user);
             return Response.status(201).entity(user).build();
         }
         catch(UserRepeatedException ex){
             return Response.status(501).entity(user).build();
-        }
-        catch(UserNotLoggedInException ex){
-            logger.warn("Attention, User not yet logged");
-            return Response.status(506).build();
         }
     }
 

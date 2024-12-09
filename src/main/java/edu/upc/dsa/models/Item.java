@@ -3,6 +3,7 @@ package edu.upc.dsa.models;
 import edu.upc.dsa.util.RandomUtils;
 
 public class Item {
+    int ID;
     String name;
     double cost;
     int velocidad;
@@ -55,6 +56,14 @@ public class Item {
 
     public void setForca(int forca) {
         this.forca = forca;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 
     @Override
