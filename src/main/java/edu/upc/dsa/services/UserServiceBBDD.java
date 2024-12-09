@@ -228,21 +228,17 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
+            @ApiResponse(code = 506, message = "User not logged"),
     })
     @Path("/stats")
     @Produces(MediaType.APPLICATION_JSON)
     public Response GetStatsUser(@CookieParam("authToken") String authToken) {
         try{
-            User u =SessionManager.getInstance().getSession(authToken);
-            User us = this.um.getUserFromUsername(u.getName());
-            return Response.status(201).entity(us).build();
+            User u = this.sesm.getSession(authToken);
+            return Response.status(201).entity(u).build();
         }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
-        }
-        catch (Exception ex){
-            return Response.status(500).build();
+        catch (UserNotLoggedInException ex){
+            return Response.status(506).build();
         }
     }
 
@@ -258,17 +254,13 @@ public class UserServiceBBDD {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response UserGetsMultiplicador(@CookieParam("authToken") String authToken) {
         try{
-            User u =SessionManager.getInstance().getSession(authToken);
-            User us = this.um.getUserFromUsername(u.getName());
-            Double precio = this.um.damePrecioCobre(us);
+            User u =  this.sesm.getSession(authToken);
+            Double precio = this.um.damePrecioCobre(u);
             return Response.status(201).entity(String.valueOf(precio)).build();
         }
-        catch(UserNotFoundException ex){
-            return Response.status(501).build();
-        }
-        catch(Exception ex)
+        catch(UserNotLoggedInException ex)
         {
-            return Response.status(500).build();
+            return Response.status(506).build();
         }
     }
     @POST
@@ -284,8 +276,7 @@ public class UserServiceBBDD {
     public Response UserUpdatesCobre(@PathParam("NameUser") String NameUser, @PathParam("Cobre") double Cobre, @CookieParam("authToken") String authToken) {
         if(NameUser == null || Cobre == 0) return Response.status(500).build();
         try{
-            this.sesm.getSession(authToken);
-            User u = this.um.getUserFromUsername(NameUser);
+            User u = this.sesm.getSession(authToken);
             this.um.updateCobre(Cobre, u);
             return Response.status(201).entity(String.valueOf(u.getCobre())).build();
         }
@@ -341,7 +332,6 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful"),
             @ApiResponse(code = 500, message = "Error"),
-            @ApiResponse(code = 501, message = "User not found"),
             @ApiResponse(code = 506, message = "User Not logged in yet")
     })
     @Path("/ChangePassword")
@@ -349,7 +339,7 @@ public class UserServiceBBDD {
     public Response UserChangesPassword(ChangePassword passwords, @PathParam("UserName") String UserName, @CookieParam("authToken") String authToken) {
         try{
             User u = sesm.getSession(authToken);
-            String pass = this.um.getUserFromUsername(u.getName()).getPassword();
+            String pass = u.getPassword();
             if (pass.equals(passwords.getActualPassword())){
                 this.um.changePassword(u,passwords.getNewPassword());
                 return Response.status(201).build();
@@ -357,10 +347,6 @@ public class UserServiceBBDD {
             else {
                 return Response.status(502).build();
             }
-        }
-        catch (UserNotFoundException ex)
-        {
-            return Response.status(503).build();
         }
         catch (UserNotLoggedInException ex) {
             logger.warn("Attention, user not logged in yet");
