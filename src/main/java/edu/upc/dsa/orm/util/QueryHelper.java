@@ -38,7 +38,7 @@ public class QueryHelper {
         String [] fields = ObjectHelper.getFields(entity);
         int i = 0;
         for (String field: fields) {
-            if (!field.equals("ID")) sb.append(field);
+            sb.append(field);
             if(i< fields.length-1) sb.append(", ");
             i++;
         }
@@ -164,7 +164,7 @@ public class QueryHelper {
         String [] fields = ObjectHelper.getFields(object);
         int i = 0;
         for (String field: fields) {
-            if (!field.equals("ID")) sb.append(" ").append(field).append(" = ? ");
+            sb.append(" ").append(field).append(" = ? ");
             if (i<fields.length-1) sb.append(",");
             i++;
         }

@@ -3,6 +3,7 @@ package edu.upc.dsa.models;
 import edu.upc.dsa.util.RandomUtils;
 
 public class User {
+    int ID;
     String name;
     String password;
     String correo;
@@ -56,6 +57,14 @@ public class User {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 
     @Override

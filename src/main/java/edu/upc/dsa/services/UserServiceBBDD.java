@@ -3,6 +3,7 @@ package edu.upc.dsa.services;
 import edu.upc.dsa.*;
 import edu.upc.dsa.exceptions.*;
 import edu.upc.dsa.models.ChangePassword;
+import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -222,6 +223,7 @@ public class UserServiceBBDD {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response=User.class),
             @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 505, message = "User not logged"),
             @ApiResponse(code = 506, message = "User not logged"),
     })
     @Path("/stats")
@@ -229,7 +231,11 @@ public class UserServiceBBDD {
     public Response GetStatsUser(@CookieParam("authToken") String authToken) {
         try{
             User u = this.sesm.getSession(authToken);
-            return Response.status(201).entity(u).build();
+            User u1 = this.um.getUserFromUsername(u.getName());
+            return Response.status(201).entity(u1).build();
+        }
+        catch(UserNotFoundException ex){
+            return Response.status(505).build();
         }
         catch (UserNotLoggedInException ex){
             return Response.status(506).build();
@@ -428,4 +434,62 @@ public class UserServiceBBDD {
     private String generateRandomSessionId() {
         return java.util.UUID.randomUUID().toString();  // Genera un UUID aleatorio como token de sesión
     }
+
+    @POST
+    @ApiOperation(value = "Get Forum Messages", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response = Forum.class, responseContainer="List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "No Forum Messages"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/GetForum")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getForum( @CookieParam("authToken") String authToken) {
+        try{
+            User u = this.sesm.getSession(authToken);
+            List<Forum> lista = this.um.dameComentariosDelForum();
+            if(lista.isEmpty()) return Response.status(502).build();
+            GenericEntity<List<Forum>> entity = new GenericEntity<List<Forum>>(lista) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex) {
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+        catch (Exception ex)
+        {
+            return Response.status(500).build();
+        }
+    }
+
+
+    @POST
+    @ApiOperation(value = "Post A Forum Messages", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful",response = Forum.class, responseContainer="List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/PostInForum")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response PostInForum( @CookieParam("authToken") String authToken, Forum forum) {
+        try{
+            User u = this.sesm.getSession(authToken);
+            this.um.ponComentarioEnForum(u, forum.getComentario());
+            List<Forum> lista = this.um.dameComentariosDelForum();
+            GenericEntity<List<Forum>> entity = new GenericEntity<List<Forum>>(lista) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex) {
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+        catch (Exception ex)
+        {
+            return Response.status(500).build();
+        }
+    }
+
+
 }

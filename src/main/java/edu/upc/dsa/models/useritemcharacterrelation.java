@@ -7,6 +7,12 @@ public class useritemcharacterrelation {
 
     public  useritemcharacterrelation(){};
 
+    public useritemcharacterrelation(int ID_User, int ID_GameCharacter, int ID_Item) {
+        this.ID_User = ID_User;
+        this.ID_GameCharacter = ID_GameCharacter;
+        this.ID_Item = ID_Item;
+    }
+
     public int getID_User() {
         return ID_User;
     }

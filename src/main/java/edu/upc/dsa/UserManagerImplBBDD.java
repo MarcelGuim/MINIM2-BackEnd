@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
 import edu.upc.dsa.orm.SessionBD;
@@ -224,6 +225,14 @@ public class UserManagerImplBBDD implements UserManager {
 
         // Enviar el correu
         Transport.send(message);
+    }
+
+    public void ponComentarioEnForum(User u, String comentario){
+        sessionBD.save(new Forum(u.getName(),comentario));
+    }
+
+    public List<Forum> dameComentariosDelForum(){
+        return (List<Forum>) sessionBD.findAll(Forum.class);
     }
 
 }

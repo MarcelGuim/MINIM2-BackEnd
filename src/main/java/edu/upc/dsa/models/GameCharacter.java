@@ -1,6 +1,7 @@
 package edu.upc.dsa.models;
 
 public class GameCharacter {
+    int ID;
     String name;
     int strength;
     int speed;
@@ -45,5 +46,13 @@ public class GameCharacter {
 
     public void setCost(double cost) {
         this.cost = cost;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 }

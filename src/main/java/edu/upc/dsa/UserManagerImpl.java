@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.User;
 
 import java.io.File;
@@ -240,6 +241,12 @@ public class UserManagerImpl implements UserManager {
 
         // Enviar el correu
         Transport.send(message);
+    }
+    public void ponComentarioEnForum(User u, String comentario){
+    }
+
+    public List<Forum> dameComentariosDelForum(){
+        return null;
     }
 
 

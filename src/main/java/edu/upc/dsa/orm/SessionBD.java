@@ -33,11 +33,7 @@ public interface SessionBD {
     //El HashMap conté Clau + valor (exemple--> nom,Pepito)
     //ATENCIÓ LA CLAU HA DE CONTENIR EL SÍMBOL QUE VOLEM, = < >...
     public <T> List<T> query(String query, Class theClass, HashMap params);
-    public void buy(Object userKey, Object userValue, Object itemKey, Object itemValue,Object characterKey, Object characterValue);
     // Per utilitzar-ho cal dir la clau + valor de tot, en l'ordre que toca:
-    //1--> Clau + valor de l'usuari (nom,pepito)
-    //2--> Clau + valor de item (nom,sierra)
-    //3--> Clau + valor de character (nom,primer)
     public <T> List<T> getRelaciones(Class<T> theClass, Object key, Object value);
     //Per utilitzar-ho, cal indicar quina és el tipus que volem (theClass)
     //Quina clau utilitzem per buscar-ho (nom, correu, url...)

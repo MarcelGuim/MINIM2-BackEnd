@@ -1,13 +1,11 @@
 package edu.upc.dsa.orm;
-import edu.upc.dsa.ItemManagerImpl;
-import edu.upc.dsa.models.Item;
-import edu.upc.dsa.models.GameCharacter;
-import edu.upc.dsa.models.User;
-import edu.upc.dsa.models.useritemcharacterrelation;
+import edu.upc.dsa.models.*;
 import edu.upc.dsa.orm.util.ObjectHelper;
 import edu.upc.dsa.orm.util.QueryHelper;
 import org.apache.log4j.Logger;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +23,7 @@ public class SessionImpl implements SessionBD {
 
     public void save(Object entity) {
         //Hi ha taules que tenen un ID, i altres que no, per això cal fer aquesta "distinció"
-        if (entity.getClass() == useritemcharacterrelation.class) {
+        if (entity.getClass() == useritemcharacterrelation.class || entity.getClass() == Forum.class) {
             try {
                 String insertQuery = QueryHelper.createQueryINSERT(entity);
                 // INSERT INTO User (ID, lastName, firstName, address, city) VALUES (0, ?, ?, ?,?)
@@ -33,7 +31,6 @@ public class SessionImpl implements SessionBD {
                 pstm = conn.prepareStatement(insertQuery);
                 int i = 1;
                 for (String field : ObjectHelper.getFields(entity)) {
-//                    Object x = ObjectHelper.getter(entity, field);
                     if (ObjectHelper.getter(entity, field).toString().equals("0")) {
                         pstm.setObject(i++, null);
                     } else {
@@ -90,7 +87,10 @@ public class SessionImpl implements SessionBD {
                 while (i < numColumns + 1) {
                     String key = rsmd.getColumnName(i);
                     Object value = res.getObject(i);
-
+                    if (key.equals("money") || key.equals("cobre")){
+                        BigDecimal value1 = (BigDecimal) value;
+                        value = value1.setScale(2, RoundingMode.DOWN).doubleValue(); // Truncar a 2 decimals
+                    }
                     ObjectHelper.setter(o, key, value);
                     i++;
                 }
@@ -249,71 +249,6 @@ public class SessionImpl implements SessionBD {
         return null;
     }
 
-    public void buy(Object userKey, Object userValue, Object itemKey, Object itemValue,Object characterKey, Object characterValue){
-        useritemcharacterrelation rel = new useritemcharacterrelation();
-        try {
-            String sql = QueryHelper.createQuerySELECT(User.class,userKey);
-            PreparedStatement pstm = null;
-            pstm = conn.prepareStatement(sql);
-            pstm.setObject(1,userValue);
-            ResultSet res = pstm.executeQuery();
-            if (res.next()) {
-                ResultSetMetaData rsmd = res.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                int i = 1;
-                while (i < numColumns + 1 && rel.getID_User()==0) {
-                    String key = rsmd.getColumnName(i);
-                    Object value = res.getObject(i);
-                    if(key.equals("ID")) rel.setID_User((Integer) value);
-                    i++;
-                }
-
-            }
-        } catch (Exception ex) {
-            logger.warn("Error in the buy function when finding the User ID: "+ ex);
-        }
-        try {
-            String sql = QueryHelper.createQuerySELECT(Item.class,itemKey);
-            PreparedStatement pstm = null;
-            pstm = conn.prepareStatement(sql);
-            pstm.setObject(1,itemValue);
-            ResultSet res = pstm.executeQuery();
-            if (res.next()) {
-                ResultSetMetaData rsmd = res.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                int i = 1;
-                while (i < numColumns + 1 && rel.getID_Item()==0) {
-                    String key = rsmd.getColumnName(i);
-                    Object value = res.getObject(i);
-                    if(key.equals("ID")) rel.setID_Item((Integer) value);
-                    i++;
-                }
-            }
-        } catch (Exception ex) {
-            logger.warn("Error in the buy function when finding the Item ID: "+ ex);
-        }
-        try {
-            String sql = QueryHelper.createQuerySELECT(GameCharacter.class,characterKey);
-            PreparedStatement pstm = null;
-            pstm = conn.prepareStatement(sql);
-            pstm.setObject(1,characterValue);
-            ResultSet res = pstm.executeQuery();
-            if (res.next()) {
-                ResultSetMetaData rsmd = res.getMetaData();
-                int numColumns = rsmd.getColumnCount();
-                int i = 1;
-                while (i < numColumns + 1 && rel.getID_GameCharacter()==0) {
-                    String key = rsmd.getColumnName(i);
-                    Object value = res.getObject(i);
-                    if(key.equals("ID"))  rel.setID_GameCharacter((Integer) value);
-                    i++;
-                }
-            }
-        } catch (Exception ex) {
-            logger.warn("Error in the buy function when finding the Character ID: "+ ex);
-        }
-        this.save(rel);
-    }
 
     public <T> List<T> getRelaciones(Class<T> theClass, Object key, Object value){
         String IDUser = "";

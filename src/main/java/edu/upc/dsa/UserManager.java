@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.User;
 
 import java.util.List;
@@ -36,4 +37,9 @@ public interface UserManager {
     public void changeCorreo(User user, String correo, String code) throws  WrongCodeException;
     //Implementada
     public void getCodeForCorreoChange(User u) throws Exception;
+
+    public void ponComentarioEnForum(User u, String comentario);
+
+    public List<Forum> dameComentariosDelForum();
+
 }

@@ -8,7 +8,7 @@ CREATE TABLE User (
     name VARCHAR(255) NOT NULL,
 	password VARCHAR(255) NOT NULL,
     correo VARCHAR(255) NOT NULL,
-    money DOUBLE,
+    money DECIMAL(10,2),
     cobre DOUBLE
 );
 
@@ -47,4 +47,9 @@ CREATE TABLE Partidas (
     ID_Jugador INT NOT NULL,
     PuntuacionMax DOUBLE,
     FOREIGN KEY (ID_Jugador) REFERENCES User(ID)
+);
+
+CREATE TABLE Forum (
+	name VARCHAR(255) NOT NULL,
+	comentario VARCHAR(2500) NOT NULL
 );

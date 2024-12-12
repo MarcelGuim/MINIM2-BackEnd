@@ -147,15 +147,6 @@ public class ORMTEST {
     }
 
     @Test
-    public void TestBuy(){
-        SessionBD session = FactorySession.openSession();
-        Item i = (Item)session.get(Item.class, "name", "Sierra Electrica");
-        session.buy("name","Marcel","name","Sierra Electrica",null,null);
-        session.buy("name","Lluc","name","Sierra",null,null);
-        session.buy("name","Blau",null,null,"name","primer");
-    }
-
-    @Test
     public void TestDeleteAll(){
         SessionBD session = FactorySession.openSession();
         session.deleteAll(Item.class);
@@ -170,6 +161,21 @@ public class ORMTEST {
         List<GameCharacter> respuesta = (List<GameCharacter>)session.getRelaciones(GameCharacter.class,"name","Marcel");
         List<Item> respuesta2 = (List<Item>)session.getRelaciones(Item.class,"name","Marcel");
 
+        int k = 12;
+    }
+
+    @Test
+    public void AddComentariXat(){
+        SessionBD session = FactorySession.openSession();
+        session.save(new Forum("Marcel","hola que tal va tot?"));
+        session.save(new Forum("Lluc","molt bé"));
+        session.save(new Forum("Blau","jo també"));
+    }
+
+    @Test
+    public void GetAllXats(){
+        SessionBD session = FactorySession.openSession();
+        List<Forum> xats = (List<Forum>) session.findAll(Forum.class);
         int k = 12;
     }
 

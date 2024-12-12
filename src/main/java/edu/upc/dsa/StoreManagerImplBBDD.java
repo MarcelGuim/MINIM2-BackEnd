@@ -71,7 +71,7 @@ public class StoreManagerImplBBDD implements StoreManager {
         Item i = (Item)session.get(Item.class, "name", ItemName);
         if (i == null) throw new ItemNotFoundException();
         if(u.getMoney()>=i.getCost()){
-            session.buy("name",nameUser,"name",ItemName,null,null);
+            session.save(new useritemcharacterrelation(u.getID(),0,i.getID()));
             u.setMoney(u.getMoney()-i.getCost());
             session.update(u,"name",u.getName());
             logger.info(u.getName()+" HA COMPRADO "+i.getName());
@@ -90,7 +90,7 @@ public class StoreManagerImplBBDD implements StoreManager {
         User u = (User)session.get(User.class, "name", nameUser);
         if (u == null) throw new UserNotFoundException();
         if(u.getMoney()>=c.getCost()){
-            session.buy("name",nameUser,null,null,"name",nameCharacter);
+            session.save(new useritemcharacterrelation(u.getID(),c.getID(),0));
             u.setMoney(u.getMoney()-c.getCost());
             session.update(u,"name",u.getName());
             try{
