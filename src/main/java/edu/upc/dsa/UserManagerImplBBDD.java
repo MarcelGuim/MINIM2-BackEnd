@@ -15,6 +15,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -236,8 +237,28 @@ public class UserManagerImplBBDD implements UserManager {
         return (List<Forum>) sessionBD.findAll(Forum.class);
     }
 
-    public void ponComentarioEnChatPrivado(ChatIndividual chatIndividual){
+    public List<User> dameUsuariosConLosQueMantengoChatIndividual(String name) {
+        List<User> respuesta = new ArrayList<>();
+        List<String> nombres1 = new ArrayList<>();
+        HashMap<String, String> condiciones = new HashMap<>();
+        condiciones.put("participantes LIKE  ", "%" + name + "%");
+        List<ChatIndividual> respuesta1 = (List<ChatIndividual>) sessionBD.findAllWithConditions(ChatIndividual.class, condiciones);
+        for (ChatIndividual chat : respuesta1) {
+            String[] nombres = chat.getParticipantes().split(",");
+            for (String n : nombres) {
+                if (!n.equals(name) && !nombres1.contains(n)) {
+                    nombres1.add(n);
+                    respuesta.add(new User(n, "", ""));
+                }
+            }
+        }
+        return respuesta;
+    }
+
+    public List<ChatIndividual> ponComentarioEnChatPrivado(ChatIndividual chatIndividual){
         sessionBD.save(chatIndividual);
+        String[] nombres = chatIndividual.getParticipantes().split(",");
+        return this.getChatsIndividuales(nombres[0],nombres[1]);
     };
 
     public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2){

@@ -43,7 +43,9 @@ public interface UserManager {
 
     public List<Forum> dameComentariosDelForum();
 
-    public void ponComentarioEnChatPrivado(ChatIndividual chatIndividual);
+    public List<ChatIndividual> ponComentarioEnChatPrivado(ChatIndividual chatIndividual);
 
     public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2);
+
+    public List<User> dameUsuariosConLosQueMantengoChatIndividual(String name);
 }

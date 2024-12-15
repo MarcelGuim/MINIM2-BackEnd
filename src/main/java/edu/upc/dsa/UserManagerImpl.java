@@ -250,11 +250,14 @@ public class UserManagerImpl implements UserManager {
         return null;
     }
 
-    public void ponComentarioEnChatPrivado(ChatIndividual chatIndividual){};
+    public List<ChatIndividual> ponComentarioEnChatPrivado(ChatIndividual chatIndividual){return null;};
 
     public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2){
         return null;
     };
 
+    public List<User> dameUsuariosConLosQueMantengoChatIndividual(String name){
+        return null;
+    }
 
 }

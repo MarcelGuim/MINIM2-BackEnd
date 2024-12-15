@@ -184,4 +184,17 @@ public class UserManagerDBTest {
         List<ChatIndividual> chats = this.um.getChatsIndividuales("Marcel","Lluc");
         int k = 12;
     }
+
+    @Test
+    public void TestGetChatIndividualDeUsuario(){
+        List<User> usuarios = this.um.dameUsuariosConLosQueMantengoChatIndividual("Marcel");
+        int k = 12;
+    }
+
+    @Test
+    public void PonComentarioEnChatIndividual(){
+        ChatIndividual chat = new ChatIndividual("Marcel","Lluc","Lluc","HALOOOOO");
+        List<ChatIndividual> chats = this.um.ponComentarioEnChatPrivado(chat);
+        int k = 12;
+    }
 }

@@ -2,10 +2,7 @@ package edu.upc.dsa.services;
 
 import edu.upc.dsa.*;
 import edu.upc.dsa.exceptions.*;
-import edu.upc.dsa.models.ChangePassword;
-import edu.upc.dsa.models.Forum;
-import edu.upc.dsa.models.Item;
-import edu.upc.dsa.models.User;
+import edu.upc.dsa.models.*;
 import edu.upc.dsa.orm.FactorySession;
 import edu.upc.dsa.orm.SessionBD;
 import io.swagger.annotations.Api;
@@ -493,26 +490,73 @@ public class UserServiceBBDD {
             return Response.status(500).build();
         }
     }
+
     @POST
-    @ApiOperation(value = "Get Private Messages", notes = "hello")
+    @ApiOperation(value = "Get Pepople With Whom I Have Private Messages", notes = "hello")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successful", response= String.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Error"),
             @ApiResponse(code = 502, message = "No Forum Messages"),
             @ApiResponse(code = 506, message = "User Not logged in yet"),
     })
-    @Path("/GetPrivateNames")
+    @Path("/PrivateNames")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPrivateMessages( @CookieParam("authToken") String authToken) {
-        List<User> users = new ArrayList<>();
-        User u = new User();
-        u.setName("primero");
-        users.add(u);
-        User u1 = new User();
-        u1.setName("segundo");
-        users.add(u1);
-        GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
-        return Response.status(201).entity(entity).build();
+    public Response getPrivateMessagesNames( @CookieParam("authToken") String authToken) {
+        try {
+            User u = this.sesm.getSession(authToken);
+            List<User> users = this.um.dameUsuariosConLosQueMantengoChatIndividual(u.getName());
+            GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
     }
 
+    @POST
+    @ApiOperation(value = "Get Private Messages With Someone ", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "No Forum Messages"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/PrivateMessagesWith/{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPrivateMessages( @CookieParam("authToken") String authToken,@PathParam("name") String name) {
+        try {
+            User u = this.sesm.getSession(authToken);
+            List<ChatIndividual> chatIndividual = this.um.getChatsIndividuales(u.getName(),name);
+            GenericEntity<List<ChatIndividual>> entity = new GenericEntity<List<ChatIndividual>>(chatIndividual) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+    }
+
+    @POST
+    @ApiOperation(value = "Post Private Messages", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "No Forum Messages"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/PrivateChat/Post")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response postPrivateMessages(@CookieParam("authToken") String authToken, ChatIndividual chat) {
+        try{
+            User u = this.sesm.getSession(authToken);
+            List<ChatIndividual>respuesta = this.um.ponComentarioEnChatPrivado(chat);
+            GenericEntity<List<ChatIndividual>> entity = new GenericEntity<List<ChatIndividual>>(respuesta) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+    }
 }
