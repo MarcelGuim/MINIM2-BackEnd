@@ -57,6 +57,7 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
+
         final HttpServer server = startServer();
 
         StaticHttpHandler staticHttpHandler = new StaticHttpHandler("./public/");

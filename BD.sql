@@ -53,3 +53,9 @@ CREATE TABLE Forum (
 	name VARCHAR(255) NOT NULL,
 	comentario VARCHAR(2500) NOT NULL
 );
+
+CREATE TABLE ChatIndividual(
+	participantes VARCHAR(255) NOT NULL,
+	name VARCHAR(255) NOT NULL,
+	comentario VARCHAR(2500) NOT NULL
+);

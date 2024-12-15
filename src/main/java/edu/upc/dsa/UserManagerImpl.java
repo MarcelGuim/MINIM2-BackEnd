@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChatIndividual;
 import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.User;
 
@@ -248,6 +249,12 @@ public class UserManagerImpl implements UserManager {
     public List<Forum> dameComentariosDelForum(){
         return null;
     }
+
+    public void ponComentarioEnChatPrivado(ChatIndividual chatIndividual){};
+
+    public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2){
+        return null;
+    };
 
 
 }

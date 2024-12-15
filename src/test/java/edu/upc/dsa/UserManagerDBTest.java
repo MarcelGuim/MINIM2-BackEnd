@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChatIndividual;
 import edu.upc.dsa.models.Item;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -176,5 +177,11 @@ public class UserManagerDBTest {
         catch(Exception ex){
 
         }
+    }
+
+    @Test
+    public void TestGetChatIndividual(){
+        List<ChatIndividual> chats = this.um.getChatsIndividuales("Marcel","Lluc");
+        int k = 12;
     }
 }

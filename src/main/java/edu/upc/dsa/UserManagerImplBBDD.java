@@ -1,6 +1,7 @@
 package edu.upc.dsa;
 
 import edu.upc.dsa.exceptions.*;
+import edu.upc.dsa.models.ChatIndividual;
 import edu.upc.dsa.models.Forum;
 import edu.upc.dsa.models.User;
 import edu.upc.dsa.orm.FactorySession;
@@ -234,5 +235,18 @@ public class UserManagerImplBBDD implements UserManager {
     public List<Forum> dameComentariosDelForum(){
         return (List<Forum>) sessionBD.findAll(Forum.class);
     }
+
+    public void ponComentarioEnChatPrivado(ChatIndividual chatIndividual){
+        sessionBD.save(chatIndividual);
+    };
+
+    public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2){
+        HashMap<String,String> condiciones = new HashMap<>();
+        condiciones.put("participantes LIKE  ","%"+nombre1+"%");
+        condiciones.put("participantes LIKE ","%"+nombre2+"%");
+        List<ChatIndividual> respuesta = (List<ChatIndividual>) sessionBD.findAllWithConditions(ChatIndividual.class, condiciones);
+        int k = 12;
+        return respuesta;
+    };
 
 }

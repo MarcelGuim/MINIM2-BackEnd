@@ -19,7 +19,10 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
 
 @Api(value = "/usersBBDD", description = "Endpoint to Users Service with Data Base")
 @Path("/usersBBDD")
@@ -490,6 +493,26 @@ public class UserServiceBBDD {
             return Response.status(500).build();
         }
     }
-
+    @POST
+    @ApiOperation(value = "Get Private Messages", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= String.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "No Forum Messages"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/GetPrivateNames")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPrivateMessages( @CookieParam("authToken") String authToken) {
+        List<User> users = new ArrayList<>();
+        User u = new User();
+        u.setName("primero");
+        users.add(u);
+        User u1 = new User();
+        u1.setName("segundo");
+        users.add(u1);
+        GenericEntity<List<User>> entity = new GenericEntity<List<User>>(users) {};
+        return Response.status(201).entity(entity).build();
+    }
 
 }

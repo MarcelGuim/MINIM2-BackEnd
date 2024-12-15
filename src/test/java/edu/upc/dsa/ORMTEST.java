@@ -179,4 +179,25 @@ public class ORMTEST {
         int k = 12;
     }
 
+    @Test
+    public void SaveChatIndividual(){
+        SessionBD session = FactorySession.openSession();
+        ChatIndividual chat1 = new ChatIndividual("Marcel","Lluc","Marcel","Hey bro");
+        ChatIndividual chat2 = new ChatIndividual("Marcel","Blau","Blau","Hey bro");
+        ChatIndividual chat3 = new ChatIndividual("Blau","Lluc","Lluc","Hey bro");
+        session.save(chat1);
+        session.save(chat2);
+        session.save(chat3);
+    }
+
+    @Test
+    public void GetChatIndividual(){
+        SessionBD session = FactorySession.openSession();
+        HashMap<String,String> condiciones = new HashMap<>();
+        condiciones.put("participantes LIKE  ","%lluc%");
+        condiciones.put("participantes LIKE ","%marcel%");
+        List<ChatIndividual> respuesta = (List<ChatIndividual>) session.findAllWithConditions(ChatIndividual.class, condiciones);
+        int k = 12;
+    }
+
 }
