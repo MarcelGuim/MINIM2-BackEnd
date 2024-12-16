@@ -107,7 +107,7 @@ public class QueryHelper {
         StringBuffer sb = new StringBuffer("SELECT * FROM "+theClass.getSimpleName()+" WHERE ID NOT IN(SELECT ID_" + theClass.getSimpleName()+ " FROM useritemcharacterrelation WHERE ID_User = ? AND ID_"+ theClass.getSimpleName()+ " IS NOT NULL)");
         return sb.toString();
     }
-    public static String createSelectFindAll(Class theClass, HashMap<Object, Object> params) {
+    public static String createSelectFindAllAND(Class theClass, HashMap<Object, Object> params) {
 
         Set<Map.Entry<Object, Object>> set = params.entrySet();
 
@@ -116,6 +116,20 @@ public class QueryHelper {
         for (Object key: params.keySet()) {
             sb.append(key + " ?");
             if(i<params.size()-1)sb.append(" AND ");
+            i++;
+        }
+        return sb.toString();
+    }
+
+    public static String createSelectFindAllOR(Class theClass, HashMap<Object, Object> params) {
+
+        Set<Map.Entry<Object, Object>> set = params.entrySet();
+
+        StringBuffer sb = new StringBuffer("SELECT * FROM "+theClass.getSimpleName()+" WHERE ");
+        int i = 0;
+        for (Object key: params.keySet()) {
+            sb.append(key + " ?");
+            if(i<params.size()-1)sb.append(" OR ");
             i++;
         }
         return sb.toString();

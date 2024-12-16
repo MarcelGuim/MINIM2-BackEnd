@@ -23,7 +23,7 @@ public class SessionImpl implements SessionBD {
 
     public void save(Object entity) {
         //Hi ha taules que tenen un ID, i altres que no, per això cal fer aquesta "distinció"
-        if (entity.getClass() == useritemcharacterrelation.class || entity.getClass() == Forum.class || entity.getClass() == ChatIndividual.class) {
+        if (entity.getClass() == useritemcharacterrelation.class || entity.getClass() == Forum.class) {
             try {
                 String insertQuery = QueryHelper.createQueryINSERT(entity);
                 // INSERT INTO User (ID, lastName, firstName, address, city) VALUES (0, ?, ?, ?,?)
@@ -41,7 +41,9 @@ public class SessionImpl implements SessionBD {
             } catch (SQLException e) {
                 logger.warn("Error in the save to DB function: "+ e);
             }
-        } else {
+        }
+        else
+        {
             try {
                 String insertQuery = QueryHelper.createQueryINSERTWithID(entity);
                 // INSERT INTO User (ID, lastName, firstName, address, city) VALUES (0, ?, ?, ?,?)
@@ -50,7 +52,7 @@ public class SessionImpl implements SessionBD {
                 pstm.setObject(1, 0);
                 int i = 2;
                 for (String field : ObjectHelper.getFields(entity)) {
-                    pstm.setObject(i++, ObjectHelper.getter(entity, field));
+                    if(!field.equals("ID")) pstm.setObject(i++, ObjectHelper.getter(entity, field));
                 }
                 pstm.executeQuery();
             } catch (SQLException e) {
@@ -218,9 +220,36 @@ public class SessionImpl implements SessionBD {
         }
     }
 
-    public <T> List<T> findAllWithConditions(Class<T> theClass, HashMap params) {
+    public <T> List<T> findAllWithConditionsAND(Class<T> theClass, HashMap params) {
         try{
-            String theQuery = QueryHelper.createSelectFindAll(theClass, params);
+            String theQuery = QueryHelper.createSelectFindAllAND(theClass, params);
+            PreparedStatement pstm = null;
+            pstm = conn.prepareStatement(theQuery);
+
+            int i=1;
+            for (Object value : params.values()) {
+                pstm.setObject(i++, value );
+            }
+            ResultSet res = pstm.executeQuery();
+
+            ArrayList<String> fields = new ArrayList<>(Arrays.asList(ObjectHelper.getFieldsDirectlyClass(theClass)));
+            List<T> lists = new ArrayList<>();
+            while (res.next()) {
+                T o = theClass.newInstance();
+                for(String field: fields) ObjectHelper.setter(o, field, res.getObject(field));
+                lists.add(o);
+            }
+            return lists;
+        }
+        catch(Exception ex){
+            logger.warn("Error in the findAll with conditions function: "+ ex);
+            return null;
+        }
+    }
+
+    public <T> List<T> findAllWithConditionsOR(Class<T> theClass, HashMap params) {
+        try{
+            String theQuery = QueryHelper.createSelectFindAllOR(theClass, params);
             PreparedStatement pstm = null;
             pstm = conn.prepareStatement(theQuery);
 

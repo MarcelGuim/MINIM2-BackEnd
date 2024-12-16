@@ -100,27 +100,6 @@ public class UserManagerDBTest {
 
         }
     }
-    /*
-    @Test
-    public void UpdateMoney() {
-        try {
-            User u1 = this.um.getUserFromUsername("Marcel");
-            double multiplicador = this.um.damePrecioCobre(u1);
-            double moneey = this.um.updateMoney(u1);
-            User u2 = this.um.getUserFromUsername("Marcel");
-            Assert.assertEquals(moneey, u2.getMoney(),0);
-        } catch (UserNotFoundException ex) {
-
-        }
-        catch(UserHasNoCobreException ex){
-
-        }
-        catch(UserHasNoMultiplicadorException ex){
-
-        }
-    }
-
-     */
 
     @Test
     public void ClearAllUsers(){
@@ -193,7 +172,7 @@ public class UserManagerDBTest {
 
     @Test
     public void PonComentarioEnChatIndividual(){
-        ChatIndividual chat = new ChatIndividual("Marcel","Lluc","Lluc","HALOOOOO");
+        ChatIndividual chat = new ChatIndividual("Lluc","Marcel","Hola tu 6");
         List<ChatIndividual> chats = this.um.ponComentarioEnChatPrivado(chat);
         int k = 12;
     }

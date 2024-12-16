@@ -143,7 +143,7 @@ public class ORMTEST {
         HashMap<String,String> values = new HashMap<>();
         values.put("name =","Marcel");
         values.put("money >","50");
-        List<User> users = (List<User>)session.findAllWithConditions(User.class,values);
+        List<User> users = (List<User>)session.findAllWithConditionsAND(User.class,values);
     }
 
     @Test
@@ -182,21 +182,30 @@ public class ORMTEST {
     @Test
     public void SaveChatIndividual(){
         SessionBD session = FactorySession.openSession();
-        ChatIndividual chat1 = new ChatIndividual("Marcel","Manolo","Marcel","Hey bro");
-        ChatIndividual chat2 = new ChatIndividual("Marcel","Blau","Blau","Hey bro");
-        ChatIndividual chat3 = new ChatIndividual("Joan","Lluc","Lluc","Hey bro");
+        ChatIndividual chat1 = new ChatIndividual("Marcel","Lluc","Hey, com estas?");
+        ChatIndividual chat2 = new ChatIndividual("Marcel","Blau","AAAAAAAAAAA");
+        ChatIndividual chat3 = new ChatIndividual("Joan","Lluc","aekjkrjbg");
         session.save(chat1);
         session.save(chat2);
         session.save(chat3);
     }
 
     @Test
+    public void GetNamesWithWhomIChat(){
+        SessionBD session = FactorySession.openSession();
+        HashMap<String, String> condiciones = new HashMap<>();
+        condiciones.put("nameTo = ","Marcel");
+        condiciones.put("nameFrom = ","Marcel");
+        List<ChatIndividual> respuesta1 = (List<ChatIndividual>) session.findAllWithConditionsOR(ChatIndividual.class, condiciones);
+        int k = 12;
+    }
+    @Test
     public void GetChatIndividual(){
         SessionBD session = FactorySession.openSession();
         HashMap<String,String> condiciones = new HashMap<>();
-        condiciones.put("participantes LIKE  ","%lluc%");
-        condiciones.put("participantes LIKE ","%marcel%");
-        List<ChatIndividual> respuesta = (List<ChatIndividual>) session.findAllWithConditions(ChatIndividual.class, condiciones);
+        condiciones.put("nameFrom = ","Marcel");
+        condiciones.put("nameTo =  ","Blau");
+        List<ChatIndividual> respuesta = (List<ChatIndividual>) session.findAllWithConditionsAND(ChatIndividual.class, condiciones);
         int k = 12;
     }
 

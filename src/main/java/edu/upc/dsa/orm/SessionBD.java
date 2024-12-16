@@ -28,7 +28,8 @@ public interface SessionBD {
     //Per utilitzar-ho, cal indicar quina és el tipus que volem (theClass)
     public <T> List<T> findAll(Class<T> theClass); //Funciona
     //Per utilitzar-ho, cal indicar quina és el tipus que volem (theClass)
-    public <T> List<T> findAllWithConditions(Class<T> theClass, HashMap params); //Funciona
+    public <T> List<T> findAllWithConditionsAND(Class<T> theClass, HashMap params); //Funciona
+    public <T> List<T> findAllWithConditionsOR(Class<T> theClass, HashMap params); //Funciona
     //Per utilitzar-ho, cal indicar quina és el tipus que volem (theClass)
     //El HashMap conté Clau + valor (exemple--> nom,Pepito)
     //ATENCIÓ LA CLAU HA DE CONTENIR EL SÍMBOL QUE VOLEM, = < >...

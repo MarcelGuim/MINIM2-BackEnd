@@ -15,10 +15,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 public class UserManagerImplBBDD implements UserManager {
@@ -241,15 +238,14 @@ public class UserManagerImplBBDD implements UserManager {
         List<User> respuesta = new ArrayList<>();
         List<String> nombres1 = new ArrayList<>();
         HashMap<String, String> condiciones = new HashMap<>();
-        condiciones.put("participantes LIKE  ", "%" + name + "%");
-        List<ChatIndividual> respuesta1 = (List<ChatIndividual>) sessionBD.findAllWithConditions(ChatIndividual.class, condiciones);
+        condiciones.put("nameTo = ",name);
+        condiciones.put("nameFrom = ",name);
+        List<ChatIndividual> respuesta1 = (List<ChatIndividual>) sessionBD.findAllWithConditionsOR(ChatIndividual.class, condiciones);
+        List<String> nombres = new ArrayList<>();
         for (ChatIndividual chat : respuesta1) {
-            String[] nombres = chat.getParticipantes().split(",");
-            for (String n : nombres) {
-                if (!n.equals(name) && !nombres1.contains(n)) {
-                    nombres1.add(n);
-                    respuesta.add(new User(n, "", ""));
-                }
+            if(!nombres.contains(chat.getNameTo())){
+                respuesta.add(new User(chat.getNameTo(),null,null));
+                nombres.add(chat.getNameTo());
             }
         }
         return respuesta;
@@ -257,16 +253,21 @@ public class UserManagerImplBBDD implements UserManager {
 
     public List<ChatIndividual> ponComentarioEnChatPrivado(ChatIndividual chatIndividual){
         sessionBD.save(chatIndividual);
-        String[] nombres = chatIndividual.getParticipantes().split(",");
-        return this.getChatsIndividuales(nombres[0],nombres[1]);
+        return this.getChatsIndividuales(chatIndividual.getNameFrom(), chatIndividual.getNameTo());
     };
 
     public List<ChatIndividual> getChatsIndividuales(String nombre1, String nombre2){
         HashMap<String,String> condiciones = new HashMap<>();
-        condiciones.put("participantes LIKE  ","%"+nombre1+"%");
-        condiciones.put("participantes LIKE ","%"+nombre2+"%");
-        List<ChatIndividual> respuesta = (List<ChatIndividual>) sessionBD.findAllWithConditions(ChatIndividual.class, condiciones);
+        condiciones.put("nameFrom = ",nombre1);
+        condiciones.put("nameTo = ",nombre2);
+        List<ChatIndividual> respuesta = (List<ChatIndividual>) sessionBD.findAllWithConditionsAND(ChatIndividual.class, condiciones);
+        HashMap<String,String> condiciones2 = new HashMap<>();
+        condiciones.put("nameFrom = ",nombre2);
+        condiciones.put("nameTo = ",nombre1);
+        List<ChatIndividual> respuesta2 = (List<ChatIndividual>) sessionBD.findAllWithConditionsAND(ChatIndividual.class, condiciones);
         int k = 12;
+        respuesta.addAll(respuesta2);
+        respuesta.sort(Comparator.comparingInt(ChatIndividual::getID));
         return respuesta;
     };
 
