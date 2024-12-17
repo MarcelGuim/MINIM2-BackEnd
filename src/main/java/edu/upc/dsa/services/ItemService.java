@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/items", description = "Endpoint to Users Service")
-@Path("/items")
+@Api(value = "/itemsLocal", description = "Endpoint to Users Service")
+@Path("/itemsLocal")
 public class ItemService {
     private ItemManager im;
     private StoreManager sm;

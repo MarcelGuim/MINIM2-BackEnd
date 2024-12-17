@@ -16,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/itemsBBDD", description = "Endpoint to Items Service with Data Base")
-@Path("/itemsBBDD")
+@Api(value = "/items", description = "Endpoint to Items Service with Data Base")
+@Path("/items")
 public class ItemServiceBBDD {
     private ItemManager im;
     private StoreManager sm;

@@ -19,8 +19,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/users", description = "Endpoint to Users Service")
-@Path("/users")
+@Api(value = "/usersLocal", description = "Endpoint to Users Service")
+@Path("/usersLocal")
 public class UserService {
     //test
     private ItemManager im;

@@ -21,8 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-@Api(value = "/usersBBDD", description = "Endpoint to Users Service with Data Base")
-@Path("/usersBBDD")
+@Api(value = "/users", description = "Endpoint to Users Service with Data Base")
+@Path("/users")
 public class UserServiceBBDD {
     //test
     private ItemManager im;
