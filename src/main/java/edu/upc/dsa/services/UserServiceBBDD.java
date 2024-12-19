@@ -559,4 +559,35 @@ public class UserServiceBBDD {
             return Response.status(506).build();
         }
     }
+
+    @POST
+    @ApiOperation(value = "Get Insignias", notes = "hello")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successful", response= Insignia.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Error"),
+            @ApiResponse(code = 502, message = "No Forum Messages"),
+            @ApiResponse(code = 506, message = "User Not logged in yet"),
+    })
+    @Path("/{NameUser}/badges") //El identificador de usuario es la propia Cookie
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response GetInsignias(@CookieParam("authToken") String authToken, @PathParam("NameUser") String NameUser) {
+        try{
+            User u = this.sesm.getSession(authToken);
+            Insignia I1 = new Insignia("La Ramona", "https://cdn.pixabay.com/photo/2017/07/11/15/51/kermit-2493979_1280.png");
+            Insignia I2 = new Insignia ("Mazinger Z", "https://cdn.pixabay.com/photo/2017/07/11/15/51/kermit-2493979_1280.png");
+            Insignia I3 = new Insignia("Gongora", "https://cdn.pixabay.com/photo/2017/07/11/15/51/kermit-2493979_1280.png");
+            Insignia I4 = new Insignia("Paquito el Chocolatero", "https://cdn.pixabay.com/photo/2017/07/11/15/51/kermit-2493979_1280.png");
+            List<Insignia> respuesta = new ArrayList<>();
+            respuesta.add(I1);
+            respuesta.add(I2);
+            respuesta.add(I3);
+            respuesta.add(I4);
+            GenericEntity<List<Insignia>> entity = new GenericEntity<List<Insignia>>(respuesta) {};
+            return Response.status(201).entity(entity).build();
+        }
+        catch (UserNotLoggedInException ex){
+            logger.warn("Attention, user not logged in yet");
+            return Response.status(506).build();
+        }
+    }
 }
